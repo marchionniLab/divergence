@@ -50,6 +50,8 @@ computeQuantileMatrix <- function(Mat){
 #' S = computeUnivariateSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
 #'
 
+
+## REMOVE method
 computeUnivariateSupport <- function(Mat, gamma=0.1, beta=0.95, method="partial", parallel=TRUE, verbose=TRUE){
 	computeRanges(Mat=Mat, gamma=gamma, beta=beta, method=method, parallel=parallel, verbose=verbose)
 }
@@ -90,6 +92,8 @@ computeUnivariateSupport <- function(Mat, gamma=0.1, beta=0.95, method="partial"
 #' data(divergence)
 #' S = findUnivariateGammaWithSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
 #'
+
+## REMOVE method
 findUnivariateGammaWithSupport <- function(Mat, gamma=c(1:9/100, 1:9/10), beta=0.95, alpha=0.01, method="partial", parallel=TRUE, verbose=TRUE){
      findGamma(Mat=Mat, gamma=gamma, beta=beta, alpha=alpha, method=method, parallel=parallel, verbose=verbose)
 }
@@ -158,6 +162,7 @@ computeUnivariateTernaryMatrix <- function(Mat, Ranges){
 #' D = computeDigitization(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"], breastTCGA_Mat[, breastTCGA_Group!="NORMAL"])
 #'
 
+## REMOVE method
 computeUnivariateDigitization <- function(Mat, baseMat, 
 															computeQuantiles=TRUE,
                               gamma=c(1:9/100, 1:9/10),
