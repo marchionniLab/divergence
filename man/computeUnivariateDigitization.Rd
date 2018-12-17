@@ -48,21 +48,20 @@ A list with elements:
 				phenotype in included as well if 'Groups' and 'classes' inputs were provided.
 		Baseline: a list containing a "Ranges" data frame with the baseline interval  for each feature, and a "Support" 
 				binary matrix of the same dimensions as Mat indicating whether each sample was a support or a feature or not
-				(1=support, 0=not in the support), 
-		gamma: selected gamma value
-		alpha: the expected number of divergent features per sample computed over the baseline data matrix
-		optimal: logical indicaing whether the selected gamma value provided the necessary alpha requirement
-		alpha_space: a data frame with alpha values for each gamma searched
+				(1=support, 0=not in the support), gamma: selected gamma value, alpha: the expected number of divergent features per 
+					sample computed over the baseline data matrix, optimal: logical indicaing whether the selected gamma value provided 
+					the necessary alpha requirement, alpha_space: a data frame with alpha values for each gamma searched
 }
 \description{
 Function for obtaining the digitized form, along with other relevant statistics and measures 
 given a data matrix and a baseline matrix
 }
 \examples{
-data(divergence)
-D = computeUnivariateDigitization(
-	Mat = breastTCGA_Mat[, breastTCGA_Group=="NORMAL"], 
-	baseMat = breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+div = computeUnivariateDigitization(
+  Mat = dataMat,
+  baseMat = baseMat
 )
 
 }

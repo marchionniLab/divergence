@@ -27,20 +27,21 @@ Unix based systems (defaults to TRUE, switched to FALSE if parallel package is n
 to TRUE).}
 }
 \value{
-A list with elements "Baseline" (a list containing a "Ranges" data frame with the baseline interval 
-for each feature, and a "Support" binary matrix of the same dimensions as Mat indicating whether each sample was a support 
-for a feature or not, 1=support, 0=not in the support), "gamma" (selected gamma value), "alpha" (the expected number
- of divergent features per sample computed over the baseline data matrix), "optimal" (logical indicaing whether the 
-selected gamma value provided the necessary alpha requirement), and "alpha_space" (a data frame with alpha values 
-for each gamma searched).
+A list with elements "Ranges": data frame with the baseline interval 
+for each feature, "Support": binary matrix of the same dimensions as Mat indicating whether each sample was a support 
+for a feature or not (1=support, 0=not in the support), "gamma": gamma value, and "alpha": the expected number of divergent 
+features per sample estimated over the samples, "optimal": logical indicaing whether the 
+selected gamma value provided the necessary alpha requirement, and "alpha_space": a data frame with alpha values 
+for each gamma searched.
 }
 \description{
 Function for searching through a range of gamma values for finding the smallest gamma that 
 provides expected proportion of divergent features per sample less than or equal to alpha.
 }
 \examples{
-data(divergence)
-S = findUnivariateGammaWithSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+baseMat.q = computeQuantileMatrix(baseMat)
+baseline = findUnivariateGammaWithSupport(Mat=baseMat.q)
 
 }
 \keyword{gamma}

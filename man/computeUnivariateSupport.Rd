@@ -23,18 +23,19 @@ Unix based systems (defaults to TRUE, switched to FALSE if parallel package is n
 to TRUE).}
 }
 \value{
-A list with elements "Baseline" (a list containing a "Ranges" data frame with the baseline interval 
-for each feature, and a "Support" binary matrix of the same dimensions as Mat indicating whether each sample was a support 
-for a feature or not, 1=support, 0=not in the support), and "alpha" (the expected number of divergent 
-features per sample estimated over the samples).
+A list with elements "Ranges": data frame with the baseline interval 
+for each feature, "Support": binary matrix of the same dimensions as Mat indicating whether each sample was a support 
+for a feature or not (1=support, 0=not in the support), "gamma": gamma value, and "alpha": the expected number of divergent 
+features per sample estimated over the samples.
 }
 \description{
 Function for computing the basline support for univariate features given gamma
 and beta parameters.
 }
 \examples{
-data(divergence)
-S = computeUnivariateSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+baseMat.q = computeQuantileMatrix(baseMat)
+baseline = computeUnivariateSupport(Mat=baseMat.q)
 
 }
 \keyword{baseline,}

@@ -11,7 +11,7 @@ computeUnivariateTernaryMatrix(Mat, Baseline)
 row corresponding to a feature; usually in quantile form.}
 
 \item{Baseline}{A list with a data frame element "Ranges" containing the baseline range of each features; 
-this corresponds to the 'Baseline' element of the output of findUnivariateGammaWithSupport() or computeUnivariateSupport()}
+this corresponds to the output of findUnivariateGammaWithSupport() or computeUnivariateSupport()}
 }
 \value{
 A matrix with the same dimensions as Mat containing the ternary form data.
@@ -20,9 +20,13 @@ A matrix with the same dimensions as Mat containing the ternary form data.
 Function for obtaining the ternary form for a matrix of data given a baseline range
 }
 \examples{
-data(divergence)
-S = computeUnivariateSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
-T = computeUnivariateTernaryMatrix(Mat=computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]), Baseline=S$Baseline)
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+baseMat.q = computeQuantileMatrix(baseMat)
+baseline = computeUnivariateSupport(Mat=baseMat.q)
+dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+dataMat.q = computeQuantileMatrix(dataMat)
+divMat = computeUnivariateTernaryMatrix(Mat=dataMat.q, Baseline=baseline)
+
 }
 \keyword{digitization}
 \keyword{ternary}

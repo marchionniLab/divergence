@@ -17,7 +17,7 @@ Function for computing the quantile transformation for one or more samples
 supplied as columns of a matrix.
 }
 \examples{
-data(divergence)
-quantileMat = computeQuantileMatrix(breastTCGA_Mat)
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+baseMat.q = computeQuantileMatrix(baseMat)
 
 }

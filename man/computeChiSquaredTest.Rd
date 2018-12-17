@@ -19,14 +19,17 @@ Given a binary or ternary data matrix with class associations of samples, comput
 for each feature between given groups
 }
 \examples{
-data(divergence)
-# select half of normals for baseline computation
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+div = computeUnivariateDigitization(
+  Mat = dataMat,
+  baseMat = baseMat
+)
+sel = which(colnames(breastTCGA_Mat) \%in\% colnames(dataMat))
+div.chi = computeChiSquaredTest(Mat=div$Mat.div, 
+                                Groups=breastTCGA_ER[sel],
+                                classes=c("Positive", "Negative"))
 
-sel = sample(which(breastTCGA_Group=="NORMAL"), floor(sum(breastTCGA_Group=="NORMAL") * 0.5))
-
-D = computeDigitization(Mat=breastTCGA_Mat[, -sel], baseMat=breastTCGA_Mat[, sel])
-
-C = computeChiSquaredTest(Mat=D$Mat.div, Groups=breastTCGA_Group[sel], classes=c("NORMAL", "TUMOR"))
 
 }
 \keyword{chi-squared}
