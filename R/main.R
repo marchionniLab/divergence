@@ -151,8 +151,8 @@ computeUnivariateTernaryMatrix <- function(Mat, Baseline){
 #'  to TRUE).
 #' @param findGamma Logical indicating whether to search for optimal gamma values through the given gamma values (defaults to 
 #' TRUE). If FALSE, the first value given in gamma will be used.
-#' @param Groups Factor indicating class association of samples
-#' @param classes Vector of class labels
+#' @param Groups Factor indicating class association of samples (optional).
+#' @param classes Vector of class labels (optional).
 #'
 #' @return A list with elements:
 #' 			Mat.div: divergence coding of data matrix in ternary (-1, 0, 1) form, of same dimensions at Mat
