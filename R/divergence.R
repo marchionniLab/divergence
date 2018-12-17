@@ -329,7 +329,7 @@ findGamma = function(Mat,
   if(verbose)
     cat(sprintf("Search results for alpha=%g: gamma=%g, expectation=%g, optimal=%s\n", alpha, optimal_gamma, e_star, optimal))
   
-  Baseline=R_star$Baseline
+  Baseline= R_star
   Baseline$gamma = optimal_gamma
   Baseline$alpha = e_star
   Baseline$optimal = optimal
@@ -351,7 +351,11 @@ computeTernary = function(Mat, Baseline){
   upper = "baseline.high"
 
   if(nrow(Mat) != nrow(R))
-    cat(sprintf("WARNING [%d, %d]\n", nrow(Mat), nrow(R)))
+    stop("Incompatible row size between data matrix and baseline featues")
+
+  if( ! all(rownames(Mat) == rownames(R)) ){
+    stop("Feature names different in data and baseline")
+  }
   
   DMat = ((Mat < R[, lower]) * (-1)) + ((Mat > R[, upper]) * 1)
   rownames(DMat) = rownames(Mat)

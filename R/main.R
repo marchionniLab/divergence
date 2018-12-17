@@ -34,10 +34,10 @@ computeQuantileMatrix <- function(Mat){
 #' @param verbose Logical indicating whether to print status related messages during computation (defaults
 #'  to TRUE).
 #'
-#' @return A list with elements "Baseline" (a list containing a "Ranges" data frame with the baseline interval 
-#' for each feature, and a "Support" binary matrix of the same dimensions as Mat indicating whether each sample was a support 
-#' for a feature or not, 1=support, 0=not in the support), and "alpha" (the expected number of divergent 
-#' features per sample estimated over the samples).
+#' @return A list with elements "Ranges": data frame with the baseline interval 
+#' for each feature, "Support": binary matrix of the same dimensions as Mat indicating whether each sample was a support 
+#' for a feature or not (1=support, 0=not in the support), "gamma": gamma value, and "alpha": the expected number of divergent 
+#' features per sample estimated over the samples.
 #' 
 #' @keywords baseline, support
 #' @export
@@ -75,12 +75,12 @@ computeUnivariateSupport <- function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, v
 #' @param verbose Logical indicating whether to print status related messages during computation (defaults
 #'  to TRUE).
 #'
-#' @return A list with elements "Baseline" (a list containing a "Ranges" data frame with the baseline interval 
-#' for each feature, and a "Support" binary matrix of the same dimensions as Mat indicating whether each sample was a support 
-#' for a feature or not, 1=support, 0=not in the support), "gamma" (selected gamma value), "alpha" (the expected number
-#'  of divergent features per sample computed over the baseline data matrix), "optimal" (logical indicaing whether the 
-#' selected gamma value provided the necessary alpha requirement), and "alpha_space" (a data frame with alpha values 
-#' for each gamma searched).
+#' @return A list with elements "Ranges": data frame with the baseline interval 
+#' for each feature, "Support": binary matrix of the same dimensions as Mat indicating whether each sample was a support 
+#' for a feature or not (1=support, 0=not in the support), "gamma": gamma value, and "alpha": the expected number of divergent 
+#' features per sample estimated over the samples, "optimal": logical indicaing whether the 
+#' selected gamma value provided the necessary alpha requirement, and "alpha_space": a data frame with alpha values 
+#' for each gamma searched.
 #' 
 #' @keywords gamma
 #' @export
@@ -108,7 +108,7 @@ findUnivariateGammaWithSupport <- function(Mat, gamma=c(1:9/100, 1:9/10), beta=0
 #' @param Mat Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
 #' @param Baseline A list with a data frame element "Ranges" containing the baseline range of each features; 
-#' this corresponds to the 'Baseline' element of the output of findUnivariateGammaWithSupport() or computeUnivariateSupport()
+#' this corresponds to the output of findUnivariateGammaWithSupport() or computeUnivariateSupport()
 #'
 #' @return A matrix with the same dimensions as Mat containing the ternary form data.
 #'
@@ -116,8 +116,13 @@ findUnivariateGammaWithSupport <- function(Mat, gamma=c(1:9/100, 1:9/10), beta=0
 #' @export
 #'
 #' @examples
-#' B = computeUnivariateSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
-#' T = computeUnivariateTernaryMatrix(Mat=computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]), Baseline=B)
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' baseMat.q = computeQuantileMatrix(baseMat)
+#' baseline = computeUnivariateSupport(Mat=baseMat.q)
+#' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+#' dataMat.q = computeQuantileMatrix(dataMat)
+#' divMat = computeUnivariateTernaryMatrix(Mat=dataMat.q, Baseline=baseline)
+#'
 
 computeUnivariateTernaryMatrix <- function(Mat, Baseline){
 			computeTernary(Mat=Mat, Baseline=Baseline)
@@ -157,20 +162,20 @@ computeUnivariateTernaryMatrix <- function(Mat, Baseline){
 #'					phenotype in included as well if 'Groups' and 'classes' inputs were provided.
 #'			Baseline: a list containing a "Ranges" data frame with the baseline interval  for each feature, and a "Support" 
 #'					binary matrix of the same dimensions as Mat indicating whether each sample was a support or a feature or not
-#'					(1=support, 0=not in the support), 
-#'			gamma: selected gamma value
-#'			alpha: the expected number of divergent features per sample computed over the baseline data matrix
-#'			optimal: logical indicaing whether the selected gamma value provided the necessary alpha requirement
-#'			alpha_space: a data frame with alpha values for each gamma searched
+#'					(1=support, 0=not in the support), gamma: selected gamma value, alpha: the expected number of divergent features per 
+#' 					sample computed over the baseline data matrix, optimal: logical indicaing whether the selected gamma value provided 
+#' 					the necessary alpha requirement, alpha_space: a data frame with alpha values for each gamma searched
+#' 
 #' @keywords digitize ternary
 #' @export
 #'
 #' @examples
-#' data(divergence)
-#' D = computeUnivariateDigitization(
-#'		Mat = breastTCGA_Mat[, breastTCGA_Group=="NORMAL"], 
-#'		baseMat = breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]
-#' )
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+#' div = computeUnivariateDigitization(
+#'   Mat = dataMat,
+#'   baseMat = baseMat
+#')
 #'
 
 computeUnivariateDigitization <- function(Mat, baseMat, 
