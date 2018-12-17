@@ -280,7 +280,7 @@ computeChiSquaredTest <- function(Mat, Groups, classes){
 #'
 #' @return A list with elements:
 #'		Support: a matrix indicating which samples were included in the support.
-#'		Baseline: a list where each element is the baseline of a multivariate feature. 
+#'		Baseline_list: a list where each element is the baseline of a multivariate feature. 
 #'		featureMat: the multivariate features in matrix form.
 #'		alpha: the expected number of divergent multivariate features per sample.
 #'		gamma: the gamma parameter used for baseline computation.
