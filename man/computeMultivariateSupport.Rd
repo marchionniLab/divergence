@@ -29,7 +29,7 @@ to TRUE).}
 \value{
 A list with elements:
 	Support: a matrix indicating which samples were included in the support.
-	Baseline: a list where each element is the baseline of a multivariate feature. 
+	Baseline_list: a list where each element is the baseline of a multivariate feature. 
 	featureMat: the multivariate features in matrix form.
 	alpha: the expected number of divergent multivariate features per sample.
 	gamma: the gamma parameter used for baseline computation.
@@ -40,11 +40,9 @@ Function for computing the basline support for multivariate features given gamma
 and beta parameters.
 }
 \examples{
-data(divergence)
-S = computeMultivariateSupport(
-			Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]),
-			FeatureSets = Hallmark_genesets
-)
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+baseMat.q = computeQuantileMatrix(baseMat)
+baseline = computeMultivariateSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
 
 }
 \keyword{baseline,}

@@ -62,11 +62,12 @@ Function for obtaining the digitized form, along with other relevant statistics 
 given a data matrix and a baseline matrix with multivariate features of interest
 }
 \examples{
-data(divergence)
-D = computeMultivariateDigitization(
-	Mat = breastTCGA_Mat[, breastTCGA_Group=="NORMAL"], 
-	baseMat = breastTCGA_Mat[, breastTCGA_Group!="NORMAL"],
-	FeatureSets = Hallmark_genesets
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+div = computeMultivariateDigitization(
+  Mat = dataMat,
+  baseMat = baseMat,
+  FeatureSets = msigdb_Hallmarks
 )
 
 }

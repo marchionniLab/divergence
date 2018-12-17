@@ -47,11 +47,9 @@ Function for searching through a range of gamma values for finding the smallest 
 provides expected proportion of divergent features per sample less than or equal to alpha.
 }
 \examples{
-data(divergence)
-S = findMultivariateGammaWithSupport(
-			Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]),
-			FeatureSets = Hallmark_genesets
-)
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+baseMat.q = computeQuantileMatrix(baseMat)
+baseline = findMultivariateGammaWithSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
 
 }
 \keyword{gamma}

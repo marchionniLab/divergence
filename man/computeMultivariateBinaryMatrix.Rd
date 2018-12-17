@@ -20,15 +20,13 @@ A matrix with the same columns as Mat, with rows being the multivariate features
 Function for obtaining the binary form for a matrix for multivariate divergence of data given a baseline range
 }
 \examples{
-data(divergence)
-S = findMultivariateGammaWithSupport(
-			Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]),
-			FeatureSets = Hallmark_genesets
-)
-D = computeMultivariateBinaryMatrix(
-	Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]),
-	Baseline = S$Baseline
-)
+baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+baseMat.q = computeQuantileMatrix(baseMat)
+baseline = computeMultivariateSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
+dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+dataMat.q = computeQuantileMatrix(dataMat)
+divMat = computeMultivariateBinaryMatrix(Mat=dataMat.q, Baseline=baseline)
+
 }
 \keyword{binary}
 \keyword{digitization}

@@ -35,9 +35,9 @@ to TRUE).}
 \item{findGamma}{Logical indicating whether to search for optimal gamma values through the given gamma values (defaults to 
 TRUE). If FALSE, the first value given in gamma will be used.}
 
-\item{Groups}{Factor indicating class association of samples}
+\item{Groups}{Factor indicating class association of samples (optional).}
 
-\item{classes}{Vector of class labels}
+\item{classes}{Vector of class labels (optional).}
 }
 \value{
 A list with elements:
