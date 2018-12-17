@@ -10,8 +10,8 @@
 #' @export
 #'
 #' @examples
-#' data(divergence)
-#' quantileMat = computeQuantileMatrix(breastTCGA_Mat)
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' baseMat.q = computeQuantileMatrix(baseMat)
 #'
 
 computeQuantileMatrix <- function(Mat){
@@ -43,8 +43,9 @@ computeQuantileMatrix <- function(Mat){
 #' @export
 #' 
 #' @examples
-#' data(divergence)
-#' S = computeUnivariateSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' baseMat.q = computeQuantileMatrix(baseMat)
+#' baseline = computeUnivariateSupport(Mat=baseMat.q)
 #'
 
 
@@ -85,8 +86,9 @@ computeUnivariateSupport <- function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, v
 #' @export
 #' 
 #' @examples
-#' data(divergence)
-#' S = findUnivariateGammaWithSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' baseMat.q = computeQuantileMatrix(baseMat)
+#' baseline = findUnivariateGammaWithSupport(Mat=baseMat.q)
 #'
 
 findUnivariateGammaWithSupport <- function(Mat, gamma=c(1:9/100, 1:9/10), beta=0.95, alpha=0.01, parallel=TRUE, verbose=TRUE){
@@ -114,9 +116,8 @@ findUnivariateGammaWithSupport <- function(Mat, gamma=c(1:9/100, 1:9/10), beta=0
 #' @export
 #'
 #' @examples
-#' data(divergence)
-#' S = computeUnivariateSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
-#' T = computeUnivariateTernaryMatrix(Mat=computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]), Baseline=S$Baseline)
+#' B = computeUnivariateSupport(computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]))
+#' T = computeUnivariateTernaryMatrix(Mat=computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]), Baseline=B)
 
 computeUnivariateTernaryMatrix <- function(Mat, Baseline){
 			computeTernary(Mat=Mat, Baseline=Baseline)

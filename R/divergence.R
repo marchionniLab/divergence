@@ -83,9 +83,6 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000
   # nmax = cols
   # mmax = rows
 
-  # for testing:
-  # nmax = 50
-
 	if(par){
 
     # check_parallel should have already checked if parallel package is available by this point
@@ -255,14 +252,15 @@ computeRanges = function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE)
   S = t(sapply(L, function(x) 1*(1:ncol(Mat) %in% x$support) ))
   colnames(S) = colnames(Mat)
   
-  Baseline = list(Ranges=R, Support=S)
+  Baseline.temp = list(Ranges=R, Support=S)
 
-  alpha=getAlpha(Mat=Mat, Baseline=Baseline)
+  alpha=getAlpha(Mat=Mat, Baseline=Baseline.temp)
   if(verbose)
     cat(sprintf("[Expected proportion of divergent features per sample=%g]\n", alpha))
   
   
-  list(Baseline=Baseline,
+  list(Ranges=R,
+       Support=S, 
        gamma=gamma,
        alpha=alpha)
   
@@ -331,12 +329,13 @@ findGamma = function(Mat,
   if(verbose)
     cat(sprintf("Search results for alpha=%g: gamma=%g, expectation=%g, optimal=%s\n", alpha, optimal_gamma, e_star, optimal))
   
-  list(Baseline=R_star$Baseline,
-       gamma=optimal_gamma,
-       alpha=e_star,
-       optimal=optimal,
-       alpha_space=data.frame(gamma=gamma, alpha=e)
-       )
+  Baseline=R_star$Baseline
+  Baseline$gamma = optimal_gamma
+  Baseline$alpha = e_star
+  Baseline$optimal = optimal
+  Baseline$alpha_space = data.frame(gamma=gamma, alpha=e)
+
+  Baseline
   
 }
 
@@ -404,18 +403,18 @@ computeTernaryDigitization = function(Mat, baseMat,
   }
 
   if(findGamma){
-    L = findGamma(Mat=baseMat, gamma=gamma, beta=beta, alpha=alpha, parallel=parallel, verbose=verbose)
+    B = findGamma(Mat=baseMat, gamma=gamma, beta=beta, alpha=alpha, parallel=parallel, verbose=verbose)
   }
   else{
     if(verbose)
       cat(sprintf("Using gamma=%g\n", gamma[1]))
-    L = findGamma(Mat=baseMat, gamma=gamma[1], beta=beta, alpha=alpha, parallel=parallel, verbose=FALSE)
+    B = findGamma(Mat=baseMat, gamma=gamma[1], beta=beta, alpha=alpha, parallel=parallel, verbose=FALSE)
   }
 
 
-  DMat_ternary = computeTernary(Mat=Mat, Baseline=L$Baseline)
+  DMat_ternary = computeTernary(Mat=Mat, Baseline=B)
   
-  baseMat_ternary = computeTernary(Mat=baseMat, Baseline=L$Baseline)
+  baseMat_ternary = computeTernary(Mat=baseMat, Baseline=B)
 
   DMat = abs(DMat_ternary)
   
@@ -440,11 +439,8 @@ computeTernaryDigitization = function(Mat, baseMat,
       baseMat.div = baseMat_ternary,
       div = data.frame(sample=colnames(Mat), count.div=N, count.div.upper=Npos, count.div.lower=Nneg),
       features.div = df,
-      Baseline = L$Baseline,
-      gamma = L$gamma,
-      alpha = L$alpha,
-      optimal = L$optimal,
-      alpha_space = L$alpha_space)
+      Baseline = B
+  )
     
 }
 
