@@ -290,11 +290,9 @@ computeChiSquaredTest <- function(Mat, Groups, classes){
 #' @export
 #' 
 #' @examples
-#' data(divergence)
-#' S = computeMultivariateSupport(
-#' 			Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]),
-#' 			FeatureSets = Hallmark_genesets
-#' )
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' baseMat.q = computeQuantileMatrix(baseMat)
+#' baseline = computeMultivariateSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
 #'
 
 computeMultivariateSupport <- function(Mat, FeatureSets, gamma=0.1, beta=0.95, distance="euclidean", verbose=TRUE){
@@ -339,11 +337,10 @@ computeMultivariateSupport <- function(Mat, FeatureSets, gamma=0.1, beta=0.95, d
 #' @export
 #' 
 #' @examples
-#' data(divergence)
-#' S = findMultivariateGammaWithSupport(
-#' 			Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]),
-#' 			FeatureSets = Hallmark_genesets
-#' )
+#' @examples
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' baseMat.q = computeQuantileMatrix(baseMat)
+#' baseline = findMultivariateGammaWithSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
 #'
 
 findMultivariateGammaWithSupport <-function(Mat, FeatureSets, gamma=1:9/10, beta=0.95, alpha=0.01, distance="euclidean", verbose=TRUE){
@@ -369,16 +366,13 @@ findMultivariateGammaWithSupport <-function(Mat, FeatureSets, gamma=1:9/10, beta
 #' @export
 #'
 #' @examples
-#' data(divergence)
-#' S = findMultivariateGammaWithSupport(
-#' 			Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]),
-#' 			FeatureSets = Hallmark_genesets
-#' )
-#' D = computeMultivariateBinaryMatrix(
-#'		Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]),
-#'		Baseline = S$Baseline
-#' )
-
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' baseMat.q = computeQuantileMatrix(baseMat)
+#' baseline = computeMultivariateSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
+#' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+#' dataMat.q = computeQuantileMatrix(dataMat)
+#' divMat = computeMultivariateBinaryMatrix(Mat=dataMat.q, Baseline=baseline)
+#'
 
 computeMultivariateBinaryMatrix <- function(Mat, Baseline){
 
@@ -431,11 +425,12 @@ computeMultivariateBinaryMatrix <- function(Mat, Baseline){
 #' @export
 #'
 #' @examples
-#' data(divergence)
-#' D = computeMultivariateDigitization(
-#'		Mat = breastTCGA_Mat[, breastTCGA_Group=="NORMAL"], 
-#'		baseMat = breastTCGA_Mat[, breastTCGA_Group!="NORMAL"],
-#'		FeatureSets = Hallmark_genesets
+#' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
+#' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+#' div = computeMultivariateDigitization(
+#'   Mat = dataMat,
+#'   baseMat = baseMat,
+#'   FeatureSets = msigdb_Hallmarks
 #' )
 #'
 
