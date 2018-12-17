@@ -3,40 +3,24 @@
 ### compute chi-squared test
 ### ====================================================
 
-get_chi_sq_test = function(x, ...){
-  res = list(statistic=NA, p.value=NA)
-  tryCatch({
-    if(ncol(x) > 1)
-      res = chisq.test(x, ...)
-  })
-  res
-}
-
-get_chi_v = function(x, y){
-  u = unique(c(x, y))
-  sapply(u, function(ui) c(sum(x == ui), sum(y == ui)) )
-}
-
-get_chi_test = function(XMat, YMat, ...){
-  C = sapply(1:nrow(XMat), function(j) get_chi_sq_test(get_chi_v(XMat[j,], YMat[j,]), ...), 
-             simplify = FALSE)
-  
-  names(C) = rownames(XMat)
-  C
-}
-
-
 chiSquaredTest = function(Mat, Groups, classes){
   
-  c = get_chi_test(XMat=Mat[, which(Groups == classes[1])], YMat=Mat[, which(Groups == classes[2])])
-  pvals = sapply(c, function(x) x$p.value)
-  stats = sapply(c, function(x) x$statistic)
+  if(! all(classes %in% Groups))
+    stop("Not all given classes are available in the groups variable")
+  
+  ch = apply(Mat, 1, function(x){
+    
+    if(length(unique(x)) > 1){
+      u = sapply(classes, function(y) sapply(unique(x), function(z) sum(x[Groups == y] == z)))
+      chisq.test(u)
+    }else{
+      list(statistic=NA, p.value=NA)
+    }
 
-  pr = sort(pvals, decreasing=FALSE, index.return=TRUE, na.last=TRUE, method='radix')$ix
-
-  df = data.frame(statistic=stats, pval=pvals)
-  rownames(df) = rownames(Mat)
-
-  df[pr, ]
-
+  })
+  
+  ch2 = data.frame(t(sapply(ch, function(x) c(x$statistic, x$p.value))))
+  colnames(ch2) = c("statistic", "pval")
+  ch2[order(ch2$pval, na.last=TRUE), ]
+  
 }

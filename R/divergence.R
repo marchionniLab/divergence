@@ -21,6 +21,7 @@ quantileTransform = function(x){
   z = rank(x[x > 0], ties.method="min")
   y[x > 0] = (z - min(z))/sum(x > 0)
   y
+
 }
 
 
@@ -40,9 +41,9 @@ getQuantileMat = function(Mat){
 ### get expected proportion of divergent feature per sample
 ### ====================================================
 
-getAlpha = function(Mat, Ranges){
+getAlpha = function(Mat, Baseline){
   
-  mean(colSums(abs(computeTernary(Mat=Mat, R=Ranges)))/nrow(Mat))
+  mean(colSums(abs(computeTernary(Mat=Mat, Baseline=Baseline)))/nrow(Mat))
   
 }
 
@@ -50,39 +51,17 @@ getAlpha = function(Mat, Ranges){
 ### computing ranges
 ### ====================================================
 
-computeSingleRange = function(x, gamma, beta, method="partial", j=NULL){
+computeSingleRange = function(x, gamma, beta, j=NULL){
   
 
   if(is.null(j))
     j = max(floor(gamma * length(x)), 1)
   
   # get distance to j'th nearest neighbor from each point in x
-  if(method=="fullsort"){
-    xjn = sapply(1:length(x), function(i){
-      sort(abs(x[-i]-x[i]))[j]
-    })
-  }else if(method=="partial"){
-    xjn = sapply(1:length(x), function(i){
-      sort(abs(x[-i]-x[i]), partial=j)[j]
-    })
-  }else if(method=="kdtree"){
-    #xjn = sapply(1:length(x), function(i) 
-    #  max(nn2(data=matrix(x[-i], ncol=1), query=c(x[i]), k=j, eps=0)$nn.dists) )
-    
-    w = WKNNF(x)
-    xjn = sapply(1:length(x), function(i) 
-      max( w$query(x[i], k=j+1, eps=0)$nn.dists ))
-    
-  }else if(method=="quantile_dist"){
-    xjn = apply(as.matrix(dist(x, method="euclidean", diag=FALSE)), 1, function(y) 
-      quantile(y, probs=gamma))
-  }else if(method=="ranks"){
-    xjn = sapply(1:length(x), function(i){
-      y = abs(x[-i]-x[i])
-      y[which(rank(y, ties.method="random") == j)]
-    })
-  }
-  
+  xjn = sapply(1:length(x), function(i){
+    sort(abs(x[-i]-x[i]), partial=j)[j]
+  })
+
   sel = which(xjn <= quantile(xjn, beta))
   
   x = x[sel]
@@ -97,8 +76,7 @@ computeSingleRange = function(x, gamma, beta, method="partial", j=NULL){
   
 }
 
-getRangeList = function(Mat, gamma=0.1, beta=0.95, method="partial", par=TRUE,
-                         nmax=200, mmax=1000, verbose=TRUE){
+getRangeList = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000, verbose=TRUE){
 
 	L = NULL
 
@@ -110,6 +88,7 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, method="partial", par=TRUE,
 
 	if(par){
 
+    # check_parallel should have already checked if parallel package is available by this point
 		require(parallel)
 
 		if(nrow(Mat) > mmax && ncol(Mat) > nmax){
@@ -117,20 +96,17 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, method="partial", par=TRUE,
 			# for large matrices, break-up into chunks and process
 			# each setion separately with mclapply
 
-			L = getRangesBySections(Mat=Mat, gamma=gamma, beta=beta, method=method,
-    			par=par, nmax=nmax, mmax=mmax, verbose=verbose)
+			L = getRangesBySections(Mat=Mat, gamma=gamma, beta=beta, par=par, nmax=nmax, mmax=mmax, verbose=verbose)
 
 		}else{
 
 			# process in parallel by each row
 
-			L = mclapply(1:nrow(Mat), function(i){
-      	tempx = NULL
-      	tryCatch({
-        	tempx = computeSingleRange(Mat[i, ], gamma=gamma, beta=beta, method=method, j=NULL)
-      	}, error = function(e){warning(e)})
-      	tempx
-    	}, mc.cores=detectCores())
+      tryCatch({
+        L = mclapply(1:nrow(Mat), function(i) computeSingleRange(Mat[i, ], gamma=gamma, beta=beta, j=NULL),
+          mc.cores=detectCores()-1
+        )
+      }, error = function(e){warning(e)})
 
     	if(sum(sapply(L, is.null)) > 0 || length(L) < nrow(Mat)){
 
@@ -138,8 +114,7 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, method="partial", par=TRUE,
         if(verbose)
       		cat("Not all features returned; re-running without parallelization\n")
 
-    		L = getRangeList(Mat=Mat, gamma=gamma, beta=beta, method=method,
-    			par=FALSE, nmax=nmax, mmax=mmax)
+    		L = getRangeList(Mat=Mat, gamma=gamma, beta=beta, par=FALSE, nmax=nmax, mmax=mmax)
 
     	}
 
@@ -152,7 +127,7 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, method="partial", par=TRUE,
 		L = lapply(1:nrow(Mat), function(i){
       	tempx = NULL
       	tryCatch({
-        	tempx = computeSingleRange(Mat[i, ], gamma=gamma, beta=beta, method=method, j=NULL)
+        	tempx = computeSingleRange(Mat[i, ], gamma=gamma, beta=beta, j=NULL)
       	}, error = function(e){warning(e)})
       	tempx
     	})
@@ -165,8 +140,7 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, method="partial", par=TRUE,
 
 }
 
-getRangesBySections = function(Mat, gamma=0.1, beta=0.95, method="partial", par=TRUE,
-                         nmax=200, mmax=1000, verbose=TRUE){
+getRangesBySections = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000, verbose=TRUE){
 
   dirnum = paste(sapply(1:5, function(i) sample(0:9, 1)), collapse="")
   dirname = sprintf("ranges_%s", dirnum)
@@ -190,7 +164,7 @@ getRangesBySections = function(Mat, gamma=0.1, beta=0.95, method="partial", par=
 
   # apply to each feature in the baseline data matrix
 
-  nc = detectCores()
+  nc = detectCores()-1
   #nc = floor(detectCores()/2)
   
   n = nrow(Mat)
@@ -208,7 +182,7 @@ getRangesBySections = function(Mat, gamma=0.1, beta=0.95, method="partial", par=
     if(verbose)
     	cat(sprintf("Processing features %d to %d\n", min(slots[[j]]), max(slots[[j]]) ))
     
-    partialRanges = getRangeList(Mat[slots[[j]], ], gamma=gamma, beta=beta, method=method, par=par, nmax=nmax, mmax=mmax)
+    partialRanges = getRangeList(Mat[slots[[j]], ], gamma=gamma, beta=beta, par=par, nmax=nmax, mmax=mmax)
     
     if(verbose)
       cat("Saving..\n")
@@ -243,53 +217,52 @@ getRangesBySections = function(Mat, gamma=0.1, beta=0.95, method="partial", par=
       }, error = function(e){print(e)})
   }
 
+  if(verbose)
+    cat("Deleting temporary files..")
+
+  unlink(dirname, recursive=TRUE)
+
+  if(verbose)
+    cat("done.\n")
+
   rL
 }
 
-computeRanges = function(Mat, gamma=0.1, beta=0.95, method="partial", parallel=TRUE, verbose=TRUE){
+computeRanges = function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE){
   
-  stopifnot(is.matrix(Mat))
-
-  if((! is.numeric(gamma)) || (gamma <= 0) || (gamma >= 1) ){
-    warning("Invalid gamma value; using gamma=0.1\n")
-    gamma = 0.1
+  if(! is.matrix(Mat)){
+    stop("Input data is not in matrix form")
   }
 
-  if((! is.numeric(beta)) || (beta <= 0) || (beta >= 1) ){
-    warning("Invalid beta value; using beta=0.95\n")
-    beta = 0.95
-  }
-
-	if(method == "kdtree"){
-		if("nabor" %in% installed.packages())
-			library("nabor")
-		else{
-			warning("Package nabor for computing kd-trees not found; hence method=partial will be used")
-			method = "partial"
-		}
-	}
+  check_gamma_beta(gamma, beta)
 
   if(verbose){
     cat(sprintf("Computing ranges from %d reference samples for %d features\n", 
                 ncol(Mat), nrow(Mat)))
-    cat(sprintf("[beta=%.3f, gamma=%.3f]\n", beta, gamma))
+    cat(sprintf("[beta=%g, gamma=%g]\n", beta, gamma))
   }
 
   # apply to each feature in the baseline data matrix
-  L = getRangeList(Mat=Mat, gamma=gamma, beta=beta, method=method, par=parallel, verbose=verbose)
+  L = getRangeList(Mat=Mat, gamma=gamma, beta=beta, par=parallel, verbose=verbose)
   
+  if(! all(sapply(L, function(x) "range" %in% names(x)))){
+    stop("Not all feature level supports were computed")
+  }
+
   R = data.frame(t(sapply(L, function(x) x$range)))
   colnames(R) = c("baseline.low", "baseline.high")
   
   S = t(sapply(L, function(x) 1*(1:ncol(Mat) %in% x$support) ))
   colnames(S) = colnames(Mat)
   
-  alpha=getAlpha(Mat=Mat, Ranges=R)
+  Baseline = list(Ranges=R, Support=S)
+
+  alpha=getAlpha(Mat=Mat, Baseline=Baseline)
   if(verbose)
-    cat(sprintf("[Expected proportion of divergent features per sample=%.3f]\n", alpha))
+    cat(sprintf("[Expected proportion of divergent features per sample=%g]\n", alpha))
   
-  list(Ranges=R, 
-       Support=S,
+  
+  list(Baseline=Baseline,
        gamma=gamma,
        alpha=alpha)
   
@@ -303,14 +276,17 @@ findGamma = function(Mat,
 	gamma=c(1:9/100, 1:9/10),
   beta=0.95, 
   alpha=0.01,
-  method="partial", 
   parallel=TRUE,
   verbose=TRUE){
  
-  stopifnot(is.matrix(Mat))
+  if(! is.matrix(Mat)){
+    stop("Input data is not in matrix form")
+  }
+
+  check_gammas_beta(gamma, beta)
 
  if(verbose)
-    cat(sprintf("Searching optimal gamma for alpha=%.5f\n", alpha))
+    cat(sprintf("Searching optimal gamma for alpha=%g\n", alpha))
    
   optimal_gamma = -1
   
@@ -323,7 +299,7 @@ findGamma = function(Mat,
     
   RangesList = list()
   for(i in 1:length(gamma)){
-    L = computeRanges(Mat=Mat, gamma=gamma[i], beta=beta, method=method, parallel=parallel, verbose=verbose)
+    L = computeRanges(Mat=Mat, gamma=gamma[i], beta=beta, parallel=parallel, verbose=verbose)
     
     RangesList[[i]] = L
     e[i] = L$alpha
@@ -353,10 +329,9 @@ findGamma = function(Mat,
   #print(temp_e)
 
   if(verbose)
-    cat(sprintf("Search results for alpha=%.5f: gamma=%.5f, expectation=%.5f, optimal=%s\n", alpha, optimal_gamma, e_star, optimal))
+    cat(sprintf("Search results for alpha=%g: gamma=%g, expectation=%g, optimal=%s\n", alpha, optimal_gamma, e_star, optimal))
   
-  list(Ranges=R_star$Ranges, 
-       Support=R_star$Support,
+  list(Baseline=R_star$Baseline,
        gamma=optimal_gamma,
        alpha=e_star,
        optimal=optimal,
@@ -369,8 +344,10 @@ findGamma = function(Mat,
 ### compute ternary form
 ### ====================================================
 
-computeTernary = function(Mat, R){
+computeTernary = function(Mat, Baseline){
   
+  R = Baseline$Ranges
+
   lower = "baseline.low"
   upper = "baseline.high"
 
@@ -393,14 +370,15 @@ computeTernaryDigitization = function(Mat, baseMat,
                               gamma=c(1:9/100, 1:9/10),
                               beta=0.95, 
                               alpha=0.01,
-                              method="partial",
                               parallel=TRUE,
                               verbose=TRUE,
                               findGamma=TRUE, 
                               Groups=NULL,                             
                               classes=NULL){
 
-  stopifnot(rownames(Mat) == rownames(baseMat))
+  if( ! all(rownames(Mat) == rownames(baseMat)) ){
+    stop("Feature names different in data and baseline matrices")
+  }
 
   if(! is.null(Groups)){
 
@@ -414,13 +392,9 @@ computeTernaryDigitization = function(Mat, baseMat,
  
   }
 
-  if(! is.numeric(alpha)){
-    warning("Invalid alpha value\n")
-    findGamma = FALSE
-  }else if(alpha < 0 || alpha > 1){
-    warning("Invalid alpha value\n")
-    findGamma = FALSE
-  }
+  check_alpha(alpha)
+
+  check_gammas_beta(gamma, beta)
 
   if(computeQuantiles){
     if(verbose)
@@ -430,17 +404,18 @@ computeTernaryDigitization = function(Mat, baseMat,
   }
 
   if(findGamma){
-    L = findGamma(Mat=baseMat, gamma=gamma, beta=beta, alpha=alpha, method=method, parallel=parallel, verbose=verbose)
+    L = findGamma(Mat=baseMat, gamma=gamma, beta=beta, alpha=alpha, parallel=parallel, verbose=verbose)
   }
   else{
     if(verbose)
-      cat(sprintf("Using gamma=.4f\n", gamma[1]))
-    L = findGamma(Mat=baseMat, gamma=gamma[1], beta=beta, alpha=alpha, method=method, parallel=parallel, verbose=FALSE)
+      cat(sprintf("Using gamma=%g\n", gamma[1]))
+    L = findGamma(Mat=baseMat, gamma=gamma[1], beta=beta, alpha=alpha, parallel=parallel, verbose=FALSE)
   }
 
-  DMat_ternary = computeTernary(Mat=Mat, R=L$Ranges)
+
+  DMat_ternary = computeTernary(Mat=Mat, Baseline=L$Baseline)
   
-  baseMat_ternary = computeTernary(Mat=baseMat, R=L$Ranges)
+  baseMat_ternary = computeTernary(Mat=baseMat, Baseline=L$Baseline)
 
   DMat = abs(DMat_ternary)
   
@@ -450,7 +425,7 @@ computeTernaryDigitization = function(Mat, baseMat,
   Npos = colSums(DMat_ternary > 0)
   Nneg = colSums(DMat_ternary < 0)
   
-  df = data.frame(feature=rownames(Mat), prob.div=D)
+  df = data.frame(feature=rownames(DMat), prob.div=D)
 
   if(! is.null(Groups)){
 
@@ -465,8 +440,7 @@ computeTernaryDigitization = function(Mat, baseMat,
       baseMat.div = baseMat_ternary,
       div = data.frame(sample=colnames(Mat), count.div=N, count.div.upper=Npos, count.div.lower=Nneg),
       features.div = df,
-      Ranges = L$Ranges,
-      Support = L$Support,
+      Baseline = L$Baseline,
       gamma = L$gamma,
       alpha = L$alpha,
       optimal = L$optimal,

@@ -2,11 +2,33 @@
 % Please edit documentation in R/main.R
 \name{computeMultivariateBinaryMatrix}
 \alias{computeMultivariateBinaryMatrix}
-\title{Compute binary matrix given feature set support}
+\title{Compute the binary matrix with digitized divergence coding}
 \usage{
-computeMultivariateBinaryMatrix(Mat, genesets, Centermatrix_list, Radius_list,
-  method = "euclidean")
+computeMultivariateBinaryMatrix(Mat, Baseline)
+}
+\arguments{
+\item{Mat}{Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+row corresponding to a feature; usually in quantile form.}
+
+\item{Baseline}{A Baseline object; this corresponds to the output of findMultivariateGammaWithSupport() or 
+computeMultivariateSupport()}
+}
+\value{
+A matrix with the same columns as Mat, with rows being the multivariate features, containing the binary form data.
 }
 \description{
-Compute binary matrix given feature set support
+Function for obtaining the binary form for a matrix for multivariate divergence of data given a baseline range
 }
+\examples{
+data(divergence)
+S = findMultivariateGammaWithSupport(
+			Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group=="NORMAL"]),
+			FeatureSets = Hallmark_genesets
+)
+D = computeMultivariateBinaryMatrix(
+	Mat = computeQuantileMatrix(breastTCGA_Mat[, breastTCGA_Group!="NORMAL"]),
+	Baseline = S$Baseline
+)
+}
+\keyword{binary}
+\keyword{digitization}

@@ -2,11 +2,73 @@
 % Please edit documentation in R/main.R
 \name{computeMultivariateDigitization}
 \alias{computeMultivariateDigitization}
-\title{Compute binary digitization for feature sets}
+\title{Perform binary digitization}
 \usage{
-computeMultivariateDigitization(Mat, basemat, genesets, gamma = 1:9/10,
-  beta = 0.95, alpha = 0.01, method = "euclidean", findGamma = TRUE)
+computeMultivariateDigitization(Mat, baseMat, FeatureSets,
+  computeQuantiles = TRUE, gamma = c(1:9/100, 1:9/10), beta = 0.95,
+  alpha = 0.01, distance = "euclidean", verbose = TRUE,
+  findGamma = TRUE, Groups = NULL, classes = NULL)
+}
+\arguments{
+\item{Mat}{Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+row corresponding to a feature; usually in quantile form.}
+
+\item{baseMat}{Matrix of baseline data in [0, 1], (usually in quantiles), with each column corresponding to a sample and each 
+row corresponding to a feature}
+
+\item{FeatureSets}{The multivariate features in list or matrix form. In list form, each list element
+should be a vector of individual features; in matrix form, it should be a binary matrix with rownames
+being individual features and column names being the names of the feature sets.}
+
+\item{computeQuantiles}{Apply quantile transformation to both data and baseline matrices (TRUE or FALSE; defaults to TRUE).}
+
+\item{gamma}{Range of gamma values to search through. 
+By default gamma = {0.01, 0.02, ... 0.09, 0.1, 0.2, ..., 0.9}.}
+
+\item{beta}{Parameter for eliminating outliers (0 < beta <= 1). By default beta=0.95.}
+
+\item{alpha}{Expected proportion of divergent features per sample to be estimated. The optimal gamma providing
+this level of divergence in the baseline data will be searched for.}
+
+\item{distance}{Type of distance to be calculated between points. Any type of distance that can be passed on
+to the dist function can be used (default 'euclidean').}
+
+\item{verbose}{Logical indicating whether to print status related messages during computation (defaults
+to TRUE).}
+
+\item{findGamma}{Logical indicating whether to search for optimal gamma values through the given gamma values (defaults to 
+TRUE). If FALSE, the first value given in gamma will be used.}
+
+\item{Groups}{Factor indicating class association of samples}
+
+\item{classes}{Vector of class labels}
+}
+\value{
+A list with elements:
+			Mat.div: divergence coding of data matrix in ternary (-1, 0, 1) form, of same dimensions at Mat
+		baseMat.div: divergence coding of base matrix in binary form, of same column names at Mat, rows being multivariate
+				features.
+			div: data frame with the number of divergent features in each sample
+		features.div: data frame with the divergent probability of each feature; divergence probability for each 
+				phenotype in included as well if 'Groups' and 'classes' inputs were provided.
+		Baseline: a list containing a "Ranges" data frame with the baseline interval  for each feature, and a "Support" 
+				binary matrix of the same dimensions as Mat indicating whether each sample was a support or a feature or not
+				(1=support, 0=not in the support), 
+		gamma: selected gamma value
+		alpha: the expected number of divergent features per sample computed over the baseline data matrix
 }
 \description{
-Compute binary digitization for feature sets
+Function for obtaining the digitized form, along with other relevant statistics and measures 
+given a data matrix and a baseline matrix with multivariate features of interest
 }
+\examples{
+data(divergence)
+D = computeMultivariateDigitization(
+	Mat = breastTCGA_Mat[, breastTCGA_Group=="NORMAL"], 
+	baseMat = breastTCGA_Mat[, breastTCGA_Group!="NORMAL"],
+	FeatureSets = Hallmark_genesets
+)
+
+}
+\keyword{digitize}
+\keyword{ternary}

@@ -12,10 +12,21 @@ row corresponding to a feature}
 
 \item{Groups}{Factor indicating class association of samples}
 
-\item{classes}{Vector of class labels; the test will be applied between the first two classes given.}
+\item{classes}{Vector of class labels; the test will be applied between the classes given.}
 }
 \description{
 Given a binary or ternary data matrix with class associations of samples, computes chi-squared tests
-for each feature between two given classes
+for each feature between given groups
+}
+\examples{
+data(divergence)
+# select half of normals for baseline computation
+
+sel = sample(which(breastTCGA_Group=="NORMAL"), floor(sum(breastTCGA_Group=="NORMAL") * 0.5))
+
+D = computeDigitization(Mat=breastTCGA_Mat[, -sel], baseMat=breastTCGA_Mat[, sel])
+
+C = computeChiSquaredTest(Mat=D$Mat.div, Groups=breastTCGA_Group[sel], classes=c("NORMAL", "TUMOR"))
+
 }
 \keyword{chi-squared}

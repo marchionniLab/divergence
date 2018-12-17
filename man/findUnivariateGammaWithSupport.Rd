@@ -4,35 +4,31 @@
 \alias{findUnivariateGammaWithSupport}
 \title{Search for optimal gamma and associated support}
 \usage{
-findUnivariateGammaWithSupport(Mat, gamma = c(1:9/100, 1:9/10), beta = 0.95,
-  alpha = 0.01, method = "partial", parallel = TRUE, verbose = TRUE)
+findUnivariateGammaWithSupport(Mat, gamma = c(1:9/100, 1:9/10),
+  beta = 0.95, alpha = 0.01, parallel = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{Mat}{Matrix of data, with each column corresponding to a sample and each 
-row corresponding to a feature}
+\item{Mat}{Matrix of data in [0, 1], with each column corresponding to a sample and each 
+row corresponding to a feature; usually in quantile form.}
 
 \item{gamma}{Range of gamma values to search through. 
 By default gamma = \{0.01, 0.02, ... 0.09, 0.1, 0.2, ..., 0.9\}.}
 
-\item{beta}{Parameter for eliminating outliers (0 < beta < 1). By default beta=0.95.}
+\item{beta}{Parameter for eliminating outliers (0 < beta <= 1). By default beta=0.95.}
 
 \item{alpha}{Expected proportion of divergent features per sample to be estimated
 over the samples in Mat. By default alpha = 0.01; i.e. search for the smallest gamma that provides
 1\% or less number of divergent features per sample.}
 
-\item{method}{Method of computing distance to j'th nearest neighbour. Options are 
-"partial" (default option and usually the fastest) for using partial quicksort, 
-"fullsort" for using full quicksort, "kdtree" for using a kd-tree (requires the package nabor), 
-"quantile_dist" for computing quantiles over pairwise distances, "ranks" for using the rank function.}
-
-\item{parallel}{Logical indicating whether to compute features parallelly with mclapply (defaults to TRUE).}
+\item{parallel}{Logical indicating whether to compute features parallelly with mclapply on
+Unix based systems (defaults to TRUE, switched to FALSE if parallel package is not available).}
 
 \item{verbose}{Logical indicating whether to print status related messages during computation (defaults
 to TRUE).}
 }
 \value{
-A list with elements "Ranges" (a data frame containing the baseline interval for each feature for the),
-selected gamma, "Support" (a binary matrix of the same dimensions as Mat indicating whether each sample was a support 
+A list with elements "Baseline" (a list containing a "Ranges" data frame with the baseline interval 
+for each feature, and a "Support" binary matrix of the same dimensions as Mat indicating whether each sample was a support 
 for a feature or not, 1=support, 0=not in the support), "gamma" (selected gamma value), "alpha" (the expected number
  of divergent features per sample computed over the baseline data matrix), "optimal" (logical indicaing whether the 
 selected gamma value provided the necessary alpha requirement), and "alpha_space" (a data frame with alpha values 
