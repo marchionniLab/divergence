@@ -1,1 +1,2 @@
 # divergenceBioC
+This package provides functionality for performing divergence analysis. For more information on the divergence framework, see Dinalankara et al, "Digitizing omics profiles by divergence from a baseline", PNAS 2018.
