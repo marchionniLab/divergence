@@ -3,13 +3,10 @@ title: 'Performing Divergence Analysis'
 author: Wikum Dinalankara, Luigi Marchionni, Qian Ke
 header-includes:
    - \usepackage{tabularx, longtable, graphicx, csquotes, hyperref, color, url}
-output:
-  pdf_document:
-    toc: true
-    number_sections: true
+output: pdf_document
 vignette: >
   %\VignetteIndexEntry{Performing Divergence Analysis}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr}
   \usepackage[utf8]{inputenc}
 bibliography: divergenceBioc.bib
 ---

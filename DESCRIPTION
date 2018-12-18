@@ -3,7 +3,7 @@ Title: Divergence Computations
 Version: 0.0.0.9000
 Author: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>
 Maintainer: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>
-Description: What the package does (one paragraph).
+Description: This package provides functionality for performing divergence analysis.
 Depends: R (>= 3.4.1)
 License: GPL-2
 Encoding: UTF-8
