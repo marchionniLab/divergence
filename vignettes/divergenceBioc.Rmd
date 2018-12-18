@@ -3,7 +3,10 @@ title: 'Performing Divergence Analysis'
 author: Wikum Dinalankara, Luigi Marchionni, Qian Ke
 header-includes:
    - \usepackage{tabularx, longtable, graphicx, csquotes, hyperref, color, url}
-output: pdf_document
+output:
+  pdf_document:
+    toc: true
+    number_sections: true
 vignette: >
   %\VignetteIndexEntry{Performing Divergence Analysis}
   %\VignetteEngine{knitr}
@@ -61,7 +64,7 @@ Figure 1 shows the univariate workflow. As shown in the figure, there are three 
 
 Or more simply, the user can use the computeUnivariateDigitization() function and supply the baseline data and the data to be digitized, and this function will perform the quantile transformation and the $\gamma$ search and perform the digitization.
 
-![Univariate workflow](../Flowchart/uni.jpg)
+![Univariate workflow](uni.jpg)
 
 
 To demonstrate, we start by applying the quantile transformation to our prepared baseline reference samples and our data samples. This is performed using the computeQuantileMatrix() function which takes a data matrix as input and outputs a data matrix of the same dimensions with each sample converted to a quantile. However, since the quantile transformation is a sample-wise operation you can supply one sample at a time if needed - i.e. it is not necessary to have all the required data in your analysis beforehand.
@@ -239,7 +242,7 @@ head(chi.1, 10)
 
 \section{Multivariate Divergence}
 
-![Multivariate workflow](../Flowchart/multi.jpg)
+![Multivariate workflow](multi.jpg)
 
 In this section we look at how to perform divergence analysis on multivariate features - i.e. sets of features. We use the hallmark gene sets mentioned previously to demonstrate this. As shown in figure 2, the workflow is similar to the univariate case, with the main difference being that the multivariate features need to be provided as input in each step. 
 
