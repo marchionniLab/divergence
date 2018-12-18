@@ -1,7 +1,7 @@
 Package: divergenceBioC
 Title: Divergence Computations
 Version: 0.0.0.9000
-Author: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>
+Author: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>, Qian Ke <qke1@jhu.edu>
 Maintainer: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>
 Description: This package provides functionality for performing divergence analysis.
 Depends: R (>= 3.4.1)
