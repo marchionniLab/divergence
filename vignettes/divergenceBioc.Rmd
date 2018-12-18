@@ -7,6 +7,10 @@ output:
   pdf_document:
     toc: true
     number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Performing Divergence Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 bibliography: divergenceBioc.bib
 ---
 
