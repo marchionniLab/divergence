@@ -47,7 +47,7 @@ We can prepare the baseline and data matrices, though this is strictly not neces
 ```{r, echo=TRUE}
 
 # load divergence package
-library(divergenceBioC)
+library(divergence)
 
 # baseline cohort
 mat.base = breastTCGA_Mat[, which(breastTCGA_Group == "NORMAL")]
