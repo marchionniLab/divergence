@@ -1,4 +1,7 @@
 # divergence
+
+### Wikum Dinalankara, Qian Ke, and Luigi Marchionni | Johns Hopkins University
+
 This package provides functionality for performing divergence analysis. For more information on the divergence framework, see [Dinalankara et al, "Digitizing omics profiles by divergence from a baseline", PNAS 2018](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5939095/).
 
 ***
