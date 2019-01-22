@@ -175,7 +175,8 @@ div.2 = computeUnivariateDigitization(
   computeQuantiles = TRUE,
   gamma = 1:9/10,
   beta = 0.9,
-  alpha = 0.01
+  alpha = 0.01, 
+  parallel = FALSE
 )
 
 # digitized data matrix
@@ -215,7 +216,8 @@ div.3 = computeUnivariateDigitization(
   computeQuantiles = FALSE,
   gamma = 1:9/10,
   Groups = groups.ER, 
-  classes = c("Positive", "Negative")
+  classes = c("Positive", "Negative"),
+  parallel = FALSE
 )
 
 # divergence probability of features
