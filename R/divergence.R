@@ -83,10 +83,14 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000
   # nmax = cols
   # mmax = rows
 
+  if(par){
+  	par = requireNamespace("parallel")
+  }
+
 	if(par){
 
     # check_parallel should have already checked if parallel package is available by this point
-		require(parallel)
+		# require(parallel)
 
 		if(nrow(Mat) > mmax && ncol(Mat) > nmax){
 
@@ -100,8 +104,8 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000
 			# process in parallel by each row
 
       tryCatch({
-        L = mclapply(1:nrow(Mat), function(i) computeSingleRange(Mat[i, ], gamma=gamma, beta=beta, j=NULL),
-          mc.cores=detectCores()-1
+        L = parallel::mclapply(1:nrow(Mat), function(i) computeSingleRange(Mat[i, ], gamma=gamma, beta=beta, j=NULL),
+          mc.cores=parallel::detectCores()-1
         )
       }, error = function(e){warning(e)})
 

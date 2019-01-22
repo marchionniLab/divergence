@@ -61,7 +61,8 @@ baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
 div = computeUnivariateDigitization(
   Mat = dataMat,
-  baseMat = baseMat
+  baseMat = baseMat,
+ parallel = TRUE
 )
 
 }

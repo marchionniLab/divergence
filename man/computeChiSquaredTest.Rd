@@ -14,6 +14,9 @@ row corresponding to a feature}
 
 \item{classes}{Vector of class labels; the test will be applied between the classes given.}
 }
+\value{
+A data frame with columns 'statistic' and 'pval'.
+}
 \description{
 Given a binary or ternary data matrix with class associations of samples, computes chi-squared tests
 for each feature between given groups
@@ -23,7 +26,8 @@ baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
 div = computeUnivariateDigitization(
   Mat = dataMat,
-  baseMat = baseMat
+  baseMat = baseMat,
+	 parallel = TRUE
 )
 sel = which(colnames(breastTCGA_Mat) \%in\% colnames(dataMat))
 div.chi = computeChiSquaredTest(Mat=div$Mat.div, 

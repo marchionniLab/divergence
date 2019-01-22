@@ -174,7 +174,8 @@ computeUnivariateTernaryMatrix <- function(Mat, Baseline){
 #' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
 #' div = computeUnivariateDigitization(
 #'   Mat = dataMat,
-#'   baseMat = baseMat
+#'   baseMat = baseMat,
+#'	 parallel = TRUE
 #')
 #'
 
@@ -222,16 +223,18 @@ computeUnivariateDigitization <- function(Mat, baseMat,
 #' @param Groups Factor indicating class association of samples
 #' @param classes Vector of class labels; the test will be applied between the classes given.
 #'
+#' @return A data frame with columns 'statistic' and 'pval'.
+#'
 #' @keywords chi-squared
 #' @export
 #'
-#' @examples
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 #' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
 #' div = computeUnivariateDigitization(
 #'   Mat = dataMat,
-#'   baseMat = baseMat
+#'   baseMat = baseMat,
+#' 	 parallel = TRUE
 #')
 #' sel = which(colnames(breastTCGA_Mat) %in% colnames(dataMat))
 #' div.chi = computeChiSquaredTest(Mat=div$Mat.div, 

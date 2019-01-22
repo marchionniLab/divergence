@@ -4,7 +4,7 @@ Version: 0.99.0
 Author: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>, Qian Ke <qke1@jhu.edu>
 Maintainer: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>
 Description: This package provides functionality for performing divergence analysis.
-Depends: R (>= 3.4.1)
+Depends: R (>= 3.5)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
