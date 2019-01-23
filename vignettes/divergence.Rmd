@@ -11,7 +11,7 @@ vignette: >
   %\VignetteIndexEntry{Performing Divergence Analysis}
   %\VignetteEngine{knitr}
   \usepackage[utf8]{inputenc}
-bibliography: divergenceBioc.bib
+bibliography: divergence.bib
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
