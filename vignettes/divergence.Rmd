@@ -26,13 +26,13 @@ As we will see, the method is simple to work with. The method applies no special
 
 The package contains a small data set, which we will use here to demonstrate the workflow. The fololowing objects are included in the package:
 
-* \textit{breastTCGA\_Mat}: This is a matrix of 1000 genes and 887 samples of breast RNA-Seq data selected from the TCGA breast cancer cohort[@tcga]. The samples contain normals and primary tumors of both ER positive and negative subtypes. The values are gene level expression estimates in TPM (transcripts per million) format.
+* \textit{breastTCGA\_Mat}: This is a matrix of 260 genes and 887 samples of breast RNA-Seq data selected from the TCGA breast cancer cohort[@tcga]. The samples contain normals and primary tumors of both ER positive and negative subtypes. The values are gene level expression estimates in TPM (transcripts per million) format.
 
 * \textit{breastTCGA\_Group}: This is a factor indicating whether each of the 887 samples mentioned above are normal or tumor. 
 
 * \textit{breastTCGA\_ER}: This is a factor indicating whether the tumor samples are ER positive or ER negative.
 
-* \textit{msigdb\_Hallmarks}: This is a list of 17 gene sets, a subset of the hallmark functional get set collection from the MSigDB database[@liberzon2011molecular]. We will use these 17 gene sets to demonstrate the multivariate divergence workflow.
+* \textit{msigdb\_Hallmarks}: This is a list of 10 gene sets, a subset of the hallmark functional get set collection from the MSigDB database[@liberzon2011molecular]. We will use these 10 gene sets to demonstrate the multivariate divergence workflow.
 
 We will use these objects throughout the following sections.
 
@@ -64,7 +64,7 @@ Figure 1 shows the univariate workflow. As shown in the figure, there are three 
 
 Or more simply, the user can use the computeUnivariateDigitization() function and supply the baseline data and the data to be digitized, and this function will perform the quantile transformation and the $\gamma$ search and perform the digitization.
 
-![Univariate workflow](uni.png)
+![Univariate workflow](uni.jpg)
 
 
 To demonstrate, we start by applying the quantile transformation to our prepared baseline reference samples and our data samples. This is performed using the computeQuantileMatrix() function which takes a data matrix as input and outputs a data matrix of the same dimensions with each sample converted to a quantile. However, since the quantile transformation is a sample-wise operation you can supply one sample at a time if needed - i.e. it is not necessary to have all the required data in your analysis beforehand.
@@ -244,7 +244,7 @@ head(chi.1, 10)
 
 \section{Multivariate Divergence}
 
-![Multivariate workflow](multi.png)
+![Multivariate workflow](multi.jpg)
 
 In this section we look at how to perform divergence analysis on multivariate features - i.e. sets of features. We use the hallmark gene sets mentioned previously to demonstrate this. As shown in figure 2, the workflow is similar to the univariate case, with the main difference being that the multivariate features need to be provided as input in each step. 
 

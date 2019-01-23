@@ -1,9 +1,9 @@
-#' Gene expression for 1000 genes in 887 breast samples
+#' Gene expression for 260 genes in 887 breast samples
 #'
 #' A data matrix containing a subset of the TCGA breast cancer dataset, with the gene level expression estimates 
 #' in log2 transcripts per million for 887 breast samples.
 #'
-#' @format A data matrix with 1000 rows and 887 columns.
+#' @format A data matrix with 260 rows and 887 columns.
 #' @source \url{https://cancergenome.nih.gov/}
 "breastTCGA_Mat"
 
@@ -28,6 +28,6 @@
 #'
 #' A subset of the cancer hallmarks functional gene sets from the MSigDB collection.
 #'
-#' @format A list of length 17, with the hallmark gene set name, each a character vector of gene symbols.
+#' @format A list of length 10, with the hallmark gene set name, each a character vector of gene symbols.
 #' @source \url{https://http://software.broadinstitute.org/gsea/msigdb/}
 "msigdb_Hallmarks"
