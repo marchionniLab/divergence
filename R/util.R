@@ -72,13 +72,29 @@ check_feature_set = function(FeatureSets){
 check_parallel = function(parallel){
 
   if(! is.logical(parallel)){
+
     warning("Ivalid parallel parameter; setting parallel = FALSE")
     parallel = FALSE
+
   }else if(parallel){
-    if( ! "parallel" %in% rownames(installed.packages()) ){
-        warning("parallel Package not available; setting parallel = FALSE")
-        parallel = FALSE
-    }
+
+  	# user has set parallel = TRUE
+
+    if("parallel" %in% rownames(installed.packages()) ){
+
+		  	if( requireNamespace("parallel") ){
+		  			# parallel is available; but is mclapply?
+			  		if(! exists("mclapply")){
+			  			warning("parallel::mclapply not available; setting parallel = FALSE")
+			  			parallel = FALSE
+			  		}
+		  	}else{
+			  		warning("parallel Package not available; setting parallel = FALSE")
+    	    	parallel = FALSE
+		  	}
+
+		}
+
   }
 
   parallel
