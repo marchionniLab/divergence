@@ -1,10 +1,10 @@
 Package: divergence
 Title: Divergence Computations
-Version: 0.99.02
+Version: 0.99.03
 Author: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>, Qian Ke <qke1@jhu.edu>
 Maintainer: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>
 Description: This package provides functionality for performing divergence analysis.
-Depends: R (>= 3.5)
+Depends: R (>= 3.6)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
