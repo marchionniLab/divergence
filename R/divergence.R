@@ -58,7 +58,7 @@ computeSingleRange = function(x, gamma, beta, j=NULL){
     j = max(floor(gamma * length(x)), 1)
   
   # get distance to j'th nearest neighbor from each point in x
-  xjn = sapply(1:length(x), function(i){
+  xjn = sapply(seq_along(x), function(i){
     sort(abs(x[-i]-x[i]), partial=j)[j]
   })
 
@@ -100,7 +100,8 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000
 			# process in parallel by each row
 
       tryCatch({
-        L = parallel::mclapply(1:nrow(Mat), function(i) computeSingleRange(Mat[i, ], gamma=gamma, beta=beta, j=NULL),
+        L = parallel::mclapply(seq_len(nrow(Mat)), 
+          function(i) computeSingleRange(Mat[i, ], gamma=gamma, beta=beta, j=NULL),
           mc.cores=parallel::detectCores()-1
         )
       }, error = function(e){warning(e)})
@@ -109,7 +110,7 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000
 
     		# did not retrurn all features; re-run without parallel
         if(verbose)
-      		cat("Not all features returned; re-running without parallelization\n")
+      		message("Not all features returned; re-running without parallelization\n")
 
     		L = getRangeList(Mat=Mat, gamma=gamma, beta=beta, par=FALSE, nmax=nmax, mmax=mmax)
 
@@ -139,21 +140,15 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000
 
 getRangesBySections = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000, verbose=TRUE){
 
-  dirnum = paste(sapply(1:5, function(i) sample(0:9, 1)), collapse="")
-  dirname = sprintf("ranges_%s", dirnum)
-
-  if(dir.exists(dirname)){
-    dirnum = paste(sapply(1:5, function(i) sample(0:9, 1)), collapse="")
-    dirname = sprintf("ranges_%s", dirnum)
-  }
+  dirname = gsub("./", "", tempfile("ranges", "."))
 
   if(verbose)
-    cat(sprintf("Creating directory %s for saving files\n", dirname))
+    message(sprintf("Creating directory %s for saving files\n", dirname))
 
   if(dir.exists(dirname)){
-    cat(sprintf("Directory %s already exits. Contents will be overwritten.\n", dirname))
+    message(sprintf("Directory %s already exits. Contents will be overwritten.\n", dirname))
     tryCatch({
-      system(sprintf("rm %s/*.rda", dirname))
+      unlink(dirname, recursive=TRUE)
     }, error = function(e){print(e)})
   }else{
     dir.create(dirname)
@@ -174,15 +169,15 @@ getRangesBySections = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mm
   
   #print(sapply(slots, function(x) c(x[1:2], x[(length(x)-1):length(x)], length(x)) ))
   
-  for(j in 1:length(slots)){
+  for(j in seq_along(slots)){
     
     if(verbose)
-    	cat(sprintf("Processing features %d to %d\n", min(slots[[j]]), max(slots[[j]]) ))
+    	message(sprintf("Processing features %d to %d\n", min(slots[[j]]), max(slots[[j]]) ))
     
     partialRanges = getRangeList(Mat[slots[[j]], ], gamma=gamma, beta=beta, par=par, nmax=nmax, mmax=mmax)
     
     if(verbose)
-      cat("Saving..\n")
+      message("Saving..\n")
     save(partialRanges, file=sprintf("%s/%d.rda", dirname, j))
     
     rm(partialRanges)
@@ -192,10 +187,10 @@ getRangesBySections = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mm
   
   # assemble
   if(verbose) 
-    cat("Assembling..\n")
+    message("Assembling..\n")
 
   L = list()
-  for(j in 1:length(slots)){
+  for(j in seq_along(slots)){
     
     ll = load(sprintf("%s/%d.rda", dirname, j))
     
@@ -215,12 +210,12 @@ getRangesBySections = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mm
   }
 
   if(verbose)
-    cat("Deleting temporary files..")
+    message("Deleting temporary files..")
 
   unlink(dirname, recursive=TRUE)
 
   if(verbose)
-    cat("done.\n")
+    message("done.\n")
 
   rL
 }
@@ -234,9 +229,9 @@ computeRanges = function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE)
   check_gamma_beta(gamma, beta)
 
   if(verbose){
-    cat(sprintf("Computing ranges from %d reference samples for %d features\n", 
+    message(sprintf("Computing ranges from %d reference samples for %d features\n", 
                 ncol(Mat), nrow(Mat)))
-    cat(sprintf("[beta=%g, gamma=%g]\n", beta, gamma))
+    message(sprintf("[beta=%g, gamma=%g]\n", beta, gamma))
   }
 
   # apply to each feature in the baseline data matrix
@@ -256,7 +251,7 @@ computeRanges = function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE)
 
   alpha=getAlpha(Mat=Mat, Baseline=Baseline.temp)
   if(verbose)
-    cat(sprintf("[Expected proportion of divergent features per sample=%g]\n", alpha))
+    message(sprintf("[Expected proportion of divergent features per sample=%g]\n", alpha))
   
   
   list(Ranges=R,
@@ -284,19 +279,19 @@ findGamma = function(Mat,
   check_gammas_beta(gamma, beta)
 
  if(verbose)
-    cat(sprintf("Searching optimal gamma for alpha=%g\n", alpha))
+    message(sprintf("Searching optimal gamma for alpha=%g\n", alpha))
    
   optimal_gamma = -1
   
   gamma = sort(gamma)
-  names(gamma) = paste("g", 1:length(gamma), sep="")
+  names(gamma) = paste("g", seq_along(gamma), sep="")
   
   g = c()
   e = rep(NA, length(gamma))
   names(e) = names(gamma)
     
   RangesList = list()
-  for(i in 1:length(gamma)){
+  for(i in seq_along(gamma)){
     L = computeRanges(Mat=Mat, gamma=gamma[i], beta=beta, parallel=parallel, verbose=verbose)
     
     RangesList[[i]] = L
@@ -306,8 +301,8 @@ findGamma = function(Mat,
     if(e[i] <= alpha)
       break
   }
-  names(RangesList) = names(gamma)[1:length(RangesList)]
-  names(g) = names(gamma)[1:length(g)]
+  names(RangesList) = names(gamma)[seq_along(RangesList)]
+  names(g) = names(gamma)[seq_along(g)]
 
   optimal = FALSE
   if(length(which(e <= alpha)) < 1){
@@ -327,7 +322,7 @@ findGamma = function(Mat,
   #print(temp_e)
 
   if(verbose)
-    cat(sprintf("Search results for alpha=%g: gamma=%g, expectation=%g, optimal=%s\n", alpha, optimal_gamma, e_star, optimal))
+    message(sprintf("Search results for alpha=%g: gamma=%g, expectation=%g, optimal=%s\n", alpha, optimal_gamma, e_star, optimal))
   
   Baseline= R_star
   Baseline$gamma = optimal_gamma
@@ -401,7 +396,7 @@ computeTernaryDigitization = function(Mat, baseMat,
 
   if(computeQuantiles){
     if(verbose)
-      cat(sprintf("Computing quantiles..\n"))
+      message(sprintf("Computing quantiles..\n"))
     baseMat = getQuantileMat(baseMat)
     Mat = getQuantileMat(Mat)
   }
@@ -411,7 +406,7 @@ computeTernaryDigitization = function(Mat, baseMat,
   }
   else{
     if(verbose)
-      cat(sprintf("Using gamma=%g\n", gamma[1]))
+      message(sprintf("Using gamma=%g\n", gamma[1]))
     B = findGamma(Mat=baseMat, gamma=gamma[1], beta=beta, alpha=alpha, parallel=parallel, verbose=FALSE)
   }
 

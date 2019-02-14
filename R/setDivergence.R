@@ -98,12 +98,12 @@ findFeatureSetGammaAndSupport = function(Mat, FeatureSets, gamma=1:9/10, beta=0.
   check_alpha(alpha)
 
   if(verbose)
-    cat(sprintf("Searching optimal support for alpha threshold=%g\n", alpha))
+    message(sprintf("Searching optimal support for alpha threshold=%g\n", alpha))
 
   fgs = list()
   optimal = FALSE
 
-  for(i in 1:length(gamma)){
+  for(i in seq_along(gamma)){
 
       S = computeFeatureSetSupport(
         Mat=Mat, 
@@ -114,7 +114,7 @@ findFeatureSetGammaAndSupport = function(Mat, FeatureSets, gamma=1:9/10, beta=0.
         verbose=verbose)
 
       if(verbose){
-        cat(sprintf("\t[gamma=%g, beta=%g, alpha=%g]\n", gamma[i], beta, S$alpha))
+        message(sprintf("\t[gamma=%g, beta=%g, alpha=%g]\n", gamma[i], beta, S$alpha))
       }
 
       fgs[[i]] = S
@@ -127,7 +127,7 @@ findFeatureSetGammaAndSupport = function(Mat, FeatureSets, gamma=1:9/10, beta=0.
   }
 
   alpha_space = data.frame(gamma=gamma, alpha=NA)
-  alpha_space$alpha[1:length(fgs)] = sapply(fgs, function(x) x$alpha)
+  alpha_space$alpha[seq_along(fgs)] = sapply(fgs, function(x) x$alpha)
 
   S$gamma = gamma[i]
   S$optimal = optimal
@@ -180,7 +180,7 @@ computeFeatureSetDigitization = function(Mat, baseMat, FeatureSets,
   if(computeQuantiles){
 
     if(verbose)
-      cat(sprintf("Computing quantiles..\n"))
+      message(sprintf("Computing quantiles..\n"))
     baseMat = getQuantileMat(baseMat)
     Mat = getQuantileMat(Mat)
 
@@ -197,7 +197,7 @@ computeFeatureSetDigitization = function(Mat, baseMat, FeatureSets,
   }else{
     
     if(verbose)
-      cat(sprintf("Using gamma=%g\n", gamma[1]))
+      message(sprintf("Using gamma=%g\n", gamma[1]))
     
     B = computeFeatureSetSupport(
       Mat=baseMat, 

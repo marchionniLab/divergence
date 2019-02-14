@@ -300,6 +300,7 @@ computeChiSquaredTest <- function(Mat, Groups, classes){
 
 computeMultivariateSupport <- function(Mat, FeatureSets, gamma=0.1, beta=0.95, distance="euclidean", verbose=TRUE){
 
+
 	computeFeatureSetSupport(Mat=Mat, FeatureSets=FeatureSets, gamma=gamma, beta=beta, distance=distance, verbose=verbose)
 
 }
@@ -347,6 +348,7 @@ computeMultivariateSupport <- function(Mat, FeatureSets, gamma=0.1, beta=0.95, d
 #'
 
 findMultivariateGammaWithSupport <-function(Mat, FeatureSets, gamma=1:9/10, beta=0.95, alpha=0.01, distance="euclidean", verbose=TRUE){
+
 
 	findFeatureSetGammaAndSupport(Mat=Mat, FeatureSets=FeatureSets, gamma=gamma, beta=beta, alpha=alpha, distance=distance, verbose=verbose)
 

@@ -76,28 +76,27 @@ check_parallel = function(parallel){
     warning("Ivalid parallel parameter; setting parallel = FALSE")
     parallel = FALSE
 
-  }else if(parallel){
+  }else if(parallel && identical(.Platform$OS.type, "windows")){
 
-  	# user has set parallel = TRUE
+  	# user has set parallel = TRUE but is on windows
+    warning("Parallel support not available on Windows; setting parallel = FALSE")
+    parallel = FALSE
 
-    if("parallel" %in% rownames(installed.packages()) ){
-
-		  	if( requireNamespace("parallel") ){
-		  			# parallel is available; but is mclapply?
-			  		if(! exists("mclapply")){
-			  			warning("parallel::mclapply not available; setting parallel = FALSE")
-			  			parallel = FALSE
-			  		}
-		  	}else{
-			  		warning("parallel Package not available; setting parallel = FALSE")
-    	    	parallel = FALSE
-		  	}
-
-		}
 
   }
 
   parallel
 
 }
+
+matrix_to_SE = function(mat){
+
+  message("Convering input matrix to SummarizedExperiment")
+
+  SummarizedExperiment(assays=list(data=mat))
+
+}
+
+
+
 
