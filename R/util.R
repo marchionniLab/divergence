@@ -91,7 +91,7 @@ check_parallel = function(parallel){
 
 check_SE = function(seMat){
 
-  if(class(seMat) != "SummarizedExperiment")
+  if(attributes(seMat)$class[1] != "SummarizedExperiment")
       seMat = matrix_to_SE(seMat)
   else if(names(assays(seMat))[1] != "data"){
       warning("First assay element should be named 'data'; Re-naming...")
