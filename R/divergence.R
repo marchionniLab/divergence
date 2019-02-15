@@ -109,7 +109,7 @@ getRangeList = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mmax=1000
         )
       }, error = function(e){warning(e)})
 
-    	if( (! exists("L")) || sum(sapply(L, is.null)) > 0 || length(L) < nrow(Mat)){
+    	if( is.null(L) || sum(sapply(L, is.null)) > 0 || length(L) < nrow(Mat)){
 
     		# did not retrurn all features; re-run without parallel
         if(verbose)
