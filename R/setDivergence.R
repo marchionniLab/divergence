@@ -72,11 +72,13 @@ computeSingleFeaturesetBinaryVector = function(Mat, Baseline){
 
 }
 
-computeFeatureSetSupport = function(Mat, FeatureSets, gamma=0.1, beta=0.95, distance="euclidean", verbose=TRUE){
+computeFeatureSetSupport = function(seMat, FeatureSets, gamma=0.1, beta=0.95, distance="euclidean", verbose=TRUE){
 
   check_gamma_beta(gamma, beta)
 
   featureMat = check_feature_set(FeatureSets)
+
+  Mat = get_mat_from_SE(seMat)
 
   Baseline_list = lapply(1:ncol(featureMat), function(j){
       features = rownames(featureMat)[which(featureMat[, j] == 1)]
@@ -92,7 +94,7 @@ computeFeatureSetSupport = function(Mat, FeatureSets, gamma=0.1, beta=0.95, dist
 
 }
 
-findFeatureSetGammaAndSupport = function(Mat, FeatureSets, gamma=1:9/10, beta=0.95, alpha=0.01, distance="euclidean", verbose=TRUE){
+findFeatureSetGammaAndSupport = function(seMat, FeatureSets, gamma=1:9/10, beta=0.95, alpha=0.01, distance="euclidean", verbose=TRUE){
 
   check_gammas_beta(gamma, beta)
   check_alpha(alpha)
@@ -102,6 +104,8 @@ findFeatureSetGammaAndSupport = function(Mat, FeatureSets, gamma=1:9/10, beta=0.
 
   fgs = list()
   optimal = FALSE
+
+  Mat = get_mat_from_SE(seMat)
 
   for(i in seq_along(gamma)){
 
@@ -134,9 +138,12 @@ findFeatureSetGammaAndSupport = function(Mat, FeatureSets, gamma=1:9/10, beta=0.
   S$alpha_space = alpha_space
 
   S
+
 }
 
-computeFeatureSetBinaryMatrix = function(Mat, Baseline){
+computeFeatureSetBinaryMatrix = function(seMat, Baseline){
+
+  Mat = get_mat_from_SE(seMat)
 
   binMat = t(sapply(Baseline$Baseline_list, function(B){
       computeSingleFeaturesetBinaryVector(Mat=Mat, Baseline=B)
@@ -146,7 +153,7 @@ computeFeatureSetBinaryMatrix = function(Mat, Baseline){
 
 }
 
-computeFeatureSetDigitization = function(Mat, baseMat, FeatureSets,
+computeFeatureSetDigitization = function(seMat, seMat.base, FeatureSets,
                               computeQuantiles=TRUE,
                               gamma=c(1:9/100, 1:9/10),
                               beta=0.95, 
@@ -158,11 +165,11 @@ computeFeatureSetDigitization = function(Mat, baseMat, FeatureSets,
                               classes=NULL){
 
 
-  stopifnot(rownames(Mat) == rownames(baseMat))
+  stopifnot(rownames(seMat) == rownames(seMat.base))
 
   if(! is.null(Groups)){
 
-    stopifnot(length(Groups) == ncol(Mat))
+    stopifnot(length(Groups) == ncol(seMat))
 
     if(! is.factor(Groups))
       Groups = factor(Groups)
@@ -181,15 +188,16 @@ computeFeatureSetDigitization = function(Mat, baseMat, FeatureSets,
 
     if(verbose)
       message(sprintf("Computing quantiles..\n"))
-    baseMat = getQuantileMat(baseMat)
-    Mat = getQuantileMat(Mat)
+
+    assays(seMat.base)$quantile = getQuantileMat(seMat.base)
+    assays(seMat)$quantile = getQuantileMat(seMat)
 
   }
 
   if(findGamma){
 
     B = findFeatureSetGammaAndSupport(
-      Mat=baseMat, 
+      seMat=seMat.base, 
       FeatureSets=FeatureSets, 
       gamma=gamma, beta=beta, alpha=alpha, distance=distance, verbose=verbose
     )
@@ -200,15 +208,15 @@ computeFeatureSetDigitization = function(Mat, baseMat, FeatureSets,
       message(sprintf("Using gamma=%g\n", gamma[1]))
     
     B = computeFeatureSetSupport(
-      Mat=baseMat, 
+      seMat=seMat.base, 
       FeatureSets=FeatureSets, 
       gamma=gamma[1], beta=beta, distance=distance, verbose=verbose
     )
 
   }
 
-  DMat = computeFeatureSetBinaryMatrix(Mat=Mat, Baseline=B)
-  baseDMat = computeFeatureSetBinaryMatrix(Mat=baseMat, Baseline=B)
+  DMat = computeFeatureSetBinaryMatrix(seMat=seMat, Baseline=B)
+  baseDMat = computeFeatureSetBinaryMatrix(seMat=seMat.base, Baseline=B) 
 
   D = rowMeans(DMat)
   N = colSums(DMat)

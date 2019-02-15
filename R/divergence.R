@@ -27,14 +27,17 @@ quantileTransform = function(x){
 
 ### apply quantiles transformation to a matrix
 ###     rank_samples: TRUE if ranking should be applied before converting to percentiles
-getQuantileMat = function(Mat){
+getQuantileMat = function(seMat){
   
+  Mat = get_mat_from_SE(seMat)
+
   newMat = apply(Mat, 2, function(x) quantileTransform(x))
   
   rownames(newMat) = rownames(Mat)
   colnames(newMat) = colnames(Mat)
   
   newMat
+
 }
 
 ### ====================================================
@@ -220,11 +223,9 @@ getRangesBySections = function(Mat, gamma=0.1, beta=0.95, par=TRUE, nmax=200, mm
   rL
 }
 
-computeRanges = function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE){
+computeRanges = function(seMat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE){
   
-  if(! is.matrix(Mat)){
-    stop("Input data is not in matrix form")
-  }
+  Mat = get_mat_from_SE(seMat)
 
   check_gamma_beta(gamma, beta)
 
@@ -265,20 +266,18 @@ computeRanges = function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE)
 ### search for gamma
 ### ====================================================
 
-findGamma = function(Mat,
+findGamma = function(seMat,
 	gamma=c(1:9/100, 1:9/10),
   beta=0.95, 
   alpha=0.01,
   parallel=TRUE,
   verbose=TRUE){
  
-  if(! is.matrix(Mat)){
-    stop("Input data is not in matrix form")
-  }
-
+  Mat = get_mat_from_SE(seMat)
+  
   check_gammas_beta(gamma, beta)
 
- if(verbose)
+  if(verbose)
     message(sprintf("Searching optimal gamma for alpha=%g\n", alpha))
    
   optimal_gamma = -1
@@ -292,7 +291,7 @@ findGamma = function(Mat,
     
   RangesList = list()
   for(i in seq_along(gamma)){
-    L = computeRanges(Mat=Mat, gamma=gamma[i], beta=beta, parallel=parallel, verbose=verbose)
+    L = computeRanges(seMat=seMat, gamma=gamma[i], beta=beta, parallel=parallel, verbose=verbose)
     
     RangesList[[i]] = L
     e[i] = L$alpha
@@ -338,15 +337,17 @@ findGamma = function(Mat,
 ### compute ternary form
 ### ====================================================
 
-computeTernary = function(Mat, Baseline){
+computeTernary = function(seMat, Baseline){
   
+  Mat = get_mat_from_SE(seMat)
+
   R = Baseline$Ranges
 
   lower = "baseline.low"
   upper = "baseline.high"
 
   if(nrow(Mat) != nrow(R))
-    stop("Incompatible row size between data matrix and baseline featues")
+    stop("Incompatible row size between data matrix and baseline features")
 
   if( ! all(rownames(Mat) == rownames(R)) ){
     stop("Feature names different in data and baseline")
@@ -355,15 +356,16 @@ computeTernary = function(Mat, Baseline){
   DMat = ((Mat < R[, lower]) * (-1)) + ((Mat > R[, upper]) * 1)
   rownames(DMat) = rownames(Mat)
   colnames(DMat) = colnames(Mat)
-  DMat
   
+  DMat
+
 }
 
 ### ====================================================
 ### compute divergences
 ### ====================================================
 
-computeTernaryDigitization = function(Mat, baseMat, 
+computeTernaryDigitization = function(seMat, seMat.base,
                               computeQuantiles=TRUE,
                               gamma=c(1:9/100, 1:9/10),
                               beta=0.95, 
@@ -374,13 +376,16 @@ computeTernaryDigitization = function(Mat, baseMat,
                               Groups=NULL,                             
                               classes=NULL){
 
-  if( ! all(rownames(Mat) == rownames(baseMat)) ){
+
+
+
+  if( ! all(rownames(seMat) == rownames(seMat.base)) ){
     stop("Feature names different in data and baseline matrices")
   }
 
   if(! is.null(Groups)){
 
-    stopifnot(length(Groups) == ncol(Mat))
+    stopifnot(length(Groups) == ncol(seMat))
 
     if(! is.factor(Groups))
       Groups = factor(Groups)
@@ -395,25 +400,27 @@ computeTernaryDigitization = function(Mat, baseMat,
   check_gammas_beta(gamma, beta)
 
   if(computeQuantiles){
+    
     if(verbose)
       message(sprintf("Computing quantiles..\n"))
-    baseMat = getQuantileMat(baseMat)
-    Mat = getQuantileMat(Mat)
+
+    assays(seMat.base)$quantile = getQuantileMat(seMat.base)
+    assays(seMat)$quantile = getQuantileMat(seMat)
+
   }
 
   if(findGamma){
-    B = findGamma(Mat=baseMat, gamma=gamma, beta=beta, alpha=alpha, parallel=parallel, verbose=verbose)
+    B = findGamma(seMat=seMat.base, gamma=gamma, beta=beta, alpha=alpha, parallel=parallel, verbose=verbose)
   }
   else{
     if(verbose)
       message(sprintf("Using gamma=%g\n", gamma[1]))
-    B = findGamma(Mat=baseMat, gamma=gamma[1], beta=beta, alpha=alpha, parallel=parallel, verbose=FALSE)
+    B = findGamma(seMat=seMat.base, gamma=gamma[1], beta=beta, alpha=alpha, parallel=parallel, verbose=FALSE)
   }
 
-
-  DMat_ternary = computeTernary(Mat=Mat, Baseline=B)
+  DMat_ternary = computeTernary(seMat=seMat, Baseline=B)
   
-  baseMat_ternary = computeTernary(Mat=baseMat, Baseline=B)
+  baseMat_ternary = computeTernary(seMat=seMat.base, Baseline=B)
 
   DMat = abs(DMat_ternary)
   
@@ -436,7 +443,7 @@ computeTernaryDigitization = function(Mat, baseMat,
 
   list(Mat.div=DMat_ternary,
       baseMat.div = baseMat_ternary,
-      div = data.frame(sample=colnames(Mat), count.div=N, count.div.upper=Npos, count.div.lower=Nneg),
+      div = data.frame(sample=colnames(DMat), count.div=N, count.div.upper=Npos, count.div.lower=Nneg),
       features.div = df,
       Baseline = B
   )

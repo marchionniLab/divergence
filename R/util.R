@@ -89,6 +89,19 @@ check_parallel = function(parallel){
 
 }
 
+check_SE = function(seMat){
+
+  if(class(seMat) != "SummarizedExperiment")
+      seMat = matrix_to_SE(seMat)
+  else if(names(assays(seMat))[1] != "data"){
+      warning("First assay element should be named 'data'; Re-naming...")
+      names(assays(seMat))[1] = data
+  }
+
+  seMat
+
+}
+
 matrix_to_SE = function(mat){
 
   message("Convering input matrix to SummarizedExperiment")
@@ -96,6 +109,25 @@ matrix_to_SE = function(mat){
   SummarizedExperiment(assays=list(data=mat))
 
 }
+
+get_mat_from_SE = function(seMat){
+
+  # Usually we work with quantile data, but sometimes the
+  # original data is used (e.g. methylation)
+
+  if("quantile" %in% names(assays(seMat))){
+    message("Retrieving quantile data")
+    assays(seMat)[["quantile"]]
+  }else if("data" %in% names(assays(seMat))){
+    message("Retrieving data")
+    assays(seMat)[["data"]]
+  }else{
+    warning("Data assays not labeled; retrieving first assay")
+    assays(seMat)[[1]]
+  }
+
+}
+
 
 
 

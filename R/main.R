@@ -3,19 +3,25 @@
 #' Function for computing the quantile transformation for one or more samples
 #' supplied as columns of a matrix.
 #'
-#' @param Mat Matrix of data, with each column corresponding to a sample and each row corresponding to a feature.
+#' @param A data matrix in SummarizedExperiment form, with each column corresponding to a sample and each row 
+#' corresponding to a feature.
 #'
-#' @return A matrix of the same dimensions as Mat with the quantile data.
+#' @return A matrix of the same dimensions with the quantile data.
 #'
 #' @export
 #'
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-#' baseMat.q = computeQuantileMatrix(baseMat)
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
 #'
 
-computeQuantileMatrix <- function(Mat){
-	getQuantileMat(Mat=Mat)
+computeQuantileMatrix <- function(seMat){
+
+	seMat = check_SE(seMat)
+
+	getQuantileMat(seMat=seMat)
+
 }
 
 # ==================================================================================================
@@ -24,7 +30,7 @@ computeQuantileMatrix <- function(Mat){
 #' Function for computing the basline support for univariate features given gamma
 #' and beta parameters.
 #'
-#' @param Mat Matrix of data in [0, 1], with each column corresponding to a sample and each 
+#' @param seMat SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
 #' @param gamma Parameter for selecting radius around each support point (0 < gamma < 1).
 #' By default gamma = 0.1.
@@ -44,16 +50,19 @@ computeQuantileMatrix <- function(Mat){
 #' 
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-#' baseMat.q = computeQuantileMatrix(baseMat)
-#' baseline = computeUnivariateSupport(Mat=baseMat.q)
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+#' baseline = computeUnivariateSupport(seMat=seMat.base)
 #'
 
 
-computeUnivariateSupport <- function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE){
+computeUnivariateSupport <- function(seMat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRUE){
 
 	parallel = check_parallel(parallel)
 
-	computeRanges(Mat=Mat, gamma=gamma, beta=beta, parallel=parallel, verbose=verbose)
+	seMat = check_SE(seMat)
+
+	computeRanges(seMat=seMat, gamma=gamma, beta=beta, parallel=parallel, verbose=verbose)
 }
 
 # ==================================================================================================
@@ -62,7 +71,7 @@ computeUnivariateSupport <- function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, v
 #' Function for searching through a range of gamma values for finding the smallest gamma that 
 #' provides expected proportion of divergent features per sample less than or equal to alpha.
 #'
-#' @param Mat Matrix of data in [0, 1], with each column corresponding to a sample and each 
+#' @param seMat SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
 #' @param gamma Range of gamma values to search through. 
 #' By default gamma = \{0.01, 0.02, ... 0.09, 0.1, 0.2, ..., 0.9\}.
@@ -87,15 +96,18 @@ computeUnivariateSupport <- function(Mat, gamma=0.1, beta=0.95, parallel=TRUE, v
 #' 
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-#' baseMat.q = computeQuantileMatrix(baseMat)
-#' baseline = findUnivariateGammaWithSupport(Mat=baseMat.q)
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+#' baseline = findUnivariateGammaWithSupport(seMat=seMat.base)
 #'
 
-findUnivariateGammaWithSupport <- function(Mat, gamma=c(1:9/100, 1:9/10), beta=0.95, alpha=0.01, parallel=TRUE, verbose=TRUE){
+findUnivariateGammaWithSupport <- function(seMat, gamma=c(1:9/100, 1:9/10), beta=0.95, alpha=0.01, parallel=TRUE, verbose=TRUE){
 
 	parallel = check_parallel(parallel)
 
-  findGamma(Mat=Mat, gamma=gamma, beta=beta, alpha=alpha, parallel=parallel, verbose=verbose)
+	seMat = check_SE(seMat)
+
+  findGamma(seMat=seMat, gamma=gamma, beta=beta, alpha=alpha, parallel=parallel, verbose=verbose)
 
 }
 
@@ -105,27 +117,32 @@ findUnivariateGammaWithSupport <- function(Mat, gamma=c(1:9/100, 1:9/10), beta=0
 #'
 #' Function for obtaining the ternary form for a matrix of data given a baseline range
 #'
-#' @param Mat Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+#' @param seMat SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
 #' @param Baseline A list with a data frame element "Ranges" containing the baseline range of each features; 
 #' this corresponds to the output of findUnivariateGammaWithSupport() or computeUnivariateSupport()
 #'
-#' @return A matrix with the same dimensions as Mat containing the ternary form data.
+#' @return A matrix containing the ternary form data.
 #'
 #' @keywords ternary digitization
 #' @export
 #'
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-#' baseMat.q = computeQuantileMatrix(baseMat)
-#' baseline = computeUnivariateSupport(Mat=baseMat.q)
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+#' baseline = computeUnivariateSupport(seMat=seMat.base)
 #' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
-#' dataMat.q = computeQuantileMatrix(dataMat)
-#' divMat = computeUnivariateTernaryMatrix(Mat=dataMat.q, Baseline=baseline)
+#' seMat = SummarizedExperiment(assays=list(data=dataMat))
+#' assays(seMat)$quantile = computeQuantileMatrix(seMat)
+#' assays(seMat)$div = computeUnivariateTernaryMatrix(seMat=seMat, Baseline=baseline)
 #'
 
-computeUnivariateTernaryMatrix <- function(Mat, Baseline){
-			computeTernary(Mat=Mat, Baseline=Baseline)
+computeUnivariateTernaryMatrix <- function(seMat, Baseline){
+
+		seMat = check_SE(seMat)
+
+		computeTernary(seMat=seMat, Baseline=Baseline)
 }
 
 # ==================================================================================================
@@ -135,11 +152,11 @@ computeUnivariateTernaryMatrix <- function(Mat, Baseline){
 #' Function for obtaining the digitized form, along with other relevant statistics and measures 
 #' given a data matrix and a baseline matrix 
 #'
-#' @param Mat Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+#' @param seMat SummarizedExperiment with assay to be digitized, in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
-#' @param baseMat Matrix of baseline data in [0, 1], (usually in quantiles), with each column corresponding to a sample and each 
+#' @param seMat.base SummarizedExperiment with baseline assay in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature
-#' @param computeQuantiles Apply quantile transformation to both data and baseline matrices (TRUE or FALSE; defaults to TRUE).
+#' @param computeQuantiles Logical; apply quantile transformation to both data and baseline matrices (TRUE or FALSE; defaults to TRUE).
 #' @param gamma Range of gamma values to search through. 
 #' By default gamma = {0.01, 0.02, ... 0.09, 0.1, 0.2, ..., 0.9}.
 #' @param beta Parameter for eliminating outliers (0 < beta <= 1). By default beta=0.95.
@@ -155,8 +172,8 @@ computeUnivariateTernaryMatrix <- function(Mat, Baseline){
 #' @param classes Vector of class labels (optional).
 #'
 #' @return A list with elements:
-#' 			Mat.div: divergence coding of data matrix in ternary (-1, 0, 1) form, of same dimensions at Mat
-#'			baseMat.div: divergence coding of base matrix in ternary (-1, 0, 1) form, of same dimensions at Mat
+#' 			Mat.div: divergence coding of data matrix in ternary (-1, 0, 1) form, of same dimensions at seMat
+#'			baseMat.div: divergence coding of base matrix in ternary (-1, 0, 1) form, of same dimensions at seMat.base
 #' 			div: data frame with the number of divergent features in each sample, including upper and lower divergence
 #'			features.div: data frame with the divergent probability of each feature; divergence probability for each 
 #'					phenotype in included as well if 'Groups' and 'classes' inputs were provided.
@@ -172,14 +189,17 @@ computeUnivariateTernaryMatrix <- function(Mat, Baseline){
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 #' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' seMat = SummarizedExperiment(assays=list(data=dataMat))
 #' div = computeUnivariateDigitization(
-#'   Mat = dataMat,
-#'   baseMat = baseMat,
+#'   seMat = seMat,
+#'   seMat.base = seMat.base,
 #'	 parallel = TRUE
-#')
+#' )
+#' assays(seMat)$div = div$Mat.div
 #'
 
-computeUnivariateDigitization <- function(Mat, baseMat, 
+computeUnivariateDigitization <- function(seMat, seMat.base, 
 															computeQuantiles=TRUE,
                               gamma=c(1:9/100, 1:9/10),
                               beta=0.95, 
@@ -193,7 +213,10 @@ computeUnivariateDigitization <- function(Mat, baseMat,
 
 	parallel = check_parallel(parallel)
 
-	computeTernaryDigitization(Mat=Mat, baseMat=baseMat, computeQuantiles=computeQuantiles,
+	seMat = check_SE(seMat)
+	seMat.base = check_SE(seMat.base)
+
+	computeTernaryDigitization(seMat=seMat, seMat.base=seMat.base, computeQuantiles=computeQuantiles,
 		gamma=gamma, beta=beta, alpha=alpha, parallel=parallel, verbose=verbose, 
 		findGamma=findGamma, Groups=Groups, classes=classes)
 
@@ -231,13 +254,16 @@ computeUnivariateDigitization <- function(Mat, baseMat,
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 #' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' seMat = SummarizedExperiment(assays=list(data=dataMat))
 #' div = computeUnivariateDigitization(
-#'   Mat = dataMat,
-#'   baseMat = baseMat,
-#' 	 parallel = TRUE
-#')
-#' sel = which(colnames(breastTCGA_Mat) %in% colnames(dataMat))
-#' div.chi = computeChiSquaredTest(Mat=div$Mat.div, 
+#'   seMat = seMat,
+#'   seMat.base = seMat.base,
+#'	 parallel = TRUE
+#' )
+#' assays(seMat)$div = div$Mat.div
+#' sel = which(colnames(seMat) %in% colnames(dataMat))
+#' div.chi = computeChiSquaredTest(Mat=assays(seMat)$div, 
 #'                                 Groups=breastTCGA_ER[sel],
 #'                                 classes=c("Positive", "Negative"))
 #'
@@ -268,7 +294,7 @@ computeChiSquaredTest <- function(Mat, Groups, classes){
 #' Function for computing the basline support for multivariate features given gamma
 #' and beta parameters.
 #'
-#' @param Mat Matrix of data in [0, 1], with each column corresponding to a sample and each 
+#' @param seMat SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
 #' @param FeatureSets The multivariate features in list or matrix form. In list form, each list element
 #' should be a vector of individual features; in matrix form, it should be a binary matrix with rownames
@@ -294,14 +320,16 @@ computeChiSquaredTest <- function(Mat, Groups, classes){
 #' 
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-#' baseMat.q = computeQuantileMatrix(baseMat)
-#' baseline = computeMultivariateSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+#' baseline = computeMultivariateSupport(seMat=seMat.base, FeatureSets=msigdb_Hallmarks)
 #'
 
-computeMultivariateSupport <- function(Mat, FeatureSets, gamma=0.1, beta=0.95, distance="euclidean", verbose=TRUE){
+computeMultivariateSupport <- function(seMat, FeatureSets, gamma=0.1, beta=0.95, distance="euclidean", verbose=TRUE){
 
+	seMat = check_SE(seMat)
 
-	computeFeatureSetSupport(Mat=Mat, FeatureSets=FeatureSets, gamma=gamma, beta=beta, distance=distance, verbose=verbose)
+	computeFeatureSetSupport(seMat=seMat, FeatureSets=FeatureSets, gamma=gamma, beta=beta, distance=distance, verbose=verbose)
 
 }
 
@@ -311,7 +339,7 @@ computeMultivariateSupport <- function(Mat, FeatureSets, gamma=0.1, beta=0.95, d
 #' Function for searching through a range of gamma values for finding the smallest gamma and support that 
 #' provides expected proportion of divergent features per sample less than or equal to alpha.
 #'
-#' @param Mat Matrix of data in [0, 1], with each column corresponding to a sample and each 
+#' @param seMat SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
 #' @param FeatureSets The multivariate features in list or matrix form. In list form, each list element
 #' should be a vector of individual features; in matrix form, it should be a binary matrix with rownames
@@ -341,16 +369,17 @@ computeMultivariateSupport <- function(Mat, FeatureSets, gamma=0.1, beta=0.95, d
 #' @export
 #' 
 #' @examples
-#' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-#' baseMat.q = computeQuantileMatrix(baseMat)
-#' baseline = findMultivariateGammaWithSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+#' baseline = findMultivariateGammaWithSupport(seMat=seMat.base, FeatureSets=msigdb_Hallmarks)
 #'
 
-findMultivariateGammaWithSupport <-function(Mat, FeatureSets, gamma=1:9/10, beta=0.95, alpha=0.01, distance="euclidean", verbose=TRUE){
+findMultivariateGammaWithSupport <-function(seMat, FeatureSets, gamma=1:9/10, beta=0.95, alpha=0.01, distance="euclidean", verbose=TRUE){
 
+	seMat = check_SE(seMat)
 
-	findFeatureSetGammaAndSupport(Mat=Mat, FeatureSets=FeatureSets, gamma=gamma, beta=beta, alpha=alpha, distance=distance, verbose=verbose)
+	findFeatureSetGammaAndSupport(seMat=seMat, FeatureSets=FeatureSets, gamma=gamma, beta=beta, alpha=alpha, distance=distance, verbose=verbose)
 
 }
 
@@ -360,7 +389,7 @@ findMultivariateGammaWithSupport <-function(Mat, FeatureSets, gamma=1:9/10, beta
 #'
 #' Function for obtaining the binary form for a matrix for multivariate divergence of data given a baseline range
 #'
-#' @param Mat Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+#' @param seMat SummarizedExperiment with assay to be digitized, in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
 #' @param Baseline A Baseline object; this corresponds to the output of findMultivariateGammaWithSupport() or 
 #' computeMultivariateSupport()
@@ -372,16 +401,20 @@ findMultivariateGammaWithSupport <-function(Mat, FeatureSets, gamma=1:9/10, beta
 #'
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-#' baseMat.q = computeQuantileMatrix(baseMat)
-#' baseline = computeMultivariateSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+#' baseline = computeMultivariateSupport(seMat=seMat.base, FeatureSets=msigdb_Hallmarks)
 #' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
-#' dataMat.q = computeQuantileMatrix(dataMat)
-#' divMat = computeMultivariateBinaryMatrix(Mat=dataMat.q, Baseline=baseline)
+#' seMat = SummarizedExperiment(assays=list(data=dataMat))
+#' assays(seMat)$quantile = computeQuantileMatrix(seMat)
+#' Mat.div = computeMultivariateBinaryMatrix(seMat=seMat, Baseline=baseline)
 #'
 
-computeMultivariateBinaryMatrix <- function(Mat, Baseline){
+computeMultivariateBinaryMatrix <- function(seMat, Baseline){
 
-	computeFeatureSetBinaryMatrix(Mat=Mat, Baseline=Baseline)
+	seMat = check_SE(seMat)
+
+	computeFeatureSetBinaryMatrix(seMat=seMat, Baseline=Baseline)
 
 }
 
@@ -392,9 +425,9 @@ computeMultivariateBinaryMatrix <- function(Mat, Baseline){
 #' Function for obtaining the digitized form, along with other relevant statistics and measures 
 #' given a data matrix and a baseline matrix with multivariate features of interest
 #'
-#' @param Mat Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+#' @param seMat SummarizedExperiment with assay to be digitized, in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature; usually in quantile form.
-#' @param baseMat Matrix of baseline data in [0, 1], (usually in quantiles), with each column corresponding to a sample and each 
+#' @param seMat.base SummarizedExperiment with baseline assay in [0, 1], with each column corresponding to a sample and each 
 #' row corresponding to a feature
 #' @param FeatureSets The multivariate features in list or matrix form. In list form, each list element
 #' should be a vector of individual features; in matrix form, it should be a binary matrix with rownames
@@ -415,8 +448,8 @@ computeMultivariateBinaryMatrix <- function(Mat, Baseline){
 #' @param classes Vector of class labels
 #'
 #' @return A list with elements:
-#' 			Mat.div: divergence coding of data matrix in ternary (-1, 0, 1) form, of same dimensions at Mat
-#'			baseMat.div: divergence coding of base matrix in binary form, of same column names at Mat, rows being multivariate
+#' 			Mat.div: divergence coding of data matrix in binary form, of same dimensions at seMat
+#'			baseMat.div: divergence coding of base matrix in binary form, of same column names at seMat.base, rows being multivariate
 #'					features.
 #' 			div: data frame with the number of divergent features in each sample
 #'			features.div: data frame with the divergent probability of each feature; divergence probability for each 
@@ -432,14 +465,16 @@ computeMultivariateBinaryMatrix <- function(Mat, Baseline){
 #' @examples
 #' baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 #' dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+#' seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+#' seMat = SummarizedExperiment(assays=list(data=dataMat))
 #' div = computeMultivariateDigitization(
-#'   Mat = dataMat,
-#'   baseMat = baseMat,
+#'   seMat = seMat,
+#'   seMat.base = seMat.base,
 #'   FeatureSets = msigdb_Hallmarks
 #' )
 #'
 
-computeMultivariateDigitization <- function(Mat, baseMat, FeatureSets,
+computeMultivariateDigitization <- function(seMat, seMat.base, FeatureSets,
                               computeQuantiles=TRUE,
                               gamma=c(1:9/100, 1:9/10),
                               beta=0.95, 
@@ -450,10 +485,12 @@ computeMultivariateDigitization <- function(Mat, baseMat, FeatureSets,
                               Groups=NULL,                             
                               classes=NULL){
 
+	seMat = check_SE(seMat)
+	seMat.base = check_SE(seMat.base)
 
 	computeFeatureSetDigitization(
-		Mat=Mat, 
-		baseMat=baseMat, 
+		seMat=seMat, 
+		seMat.base=seMat.base, 
 		FeatureSets=FeatureSets,
 		computeQuantiles=computeQuantiles,
 		gamma=gamma, beta=beta, alpha=alpha,
