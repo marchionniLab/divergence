@@ -110,19 +110,19 @@ matrix_to_SE = function(mat){
 
 }
 
-get_mat_from_SE = function(seMat){
+get_mat_from_SE = function(seMat, labels=c("quantile", "data")){
 
   # Usually we work with quantile data, but sometimes the
   # original data is used (e.g. methylation)
 
-  if("quantile" %in% names(assays(seMat))){
-    message("Retrieving quantile data")
-    assays(seMat)[["quantile"]]
-  }else if("data" %in% names(assays(seMat))){
-    message("Retrieving data")
-    assays(seMat)[["data"]]
+  if(labels[1] %in% names(assays(seMat))){
+    message(sprintf("Retrieving data: %s", labels[1]))
+    assays(seMat)[[ labels[1] ]]
+  }else if(labels[2] %in% names(assays(seMat))){
+    message(sprintf("Retrieving data: %s", labels[2]))
+    assays(seMat)[[ labels[2] ]]
   }else{
-    warning("Data assays not labeled; retrieving first assay")
+    warning("Required label not in data assays; retrieving first assay")
     assays(seMat)[[1]]
   }
 

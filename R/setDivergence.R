@@ -110,7 +110,7 @@ findFeatureSetGammaAndSupport = function(seMat, FeatureSets, gamma=1:9/10, beta=
   for(i in seq_along(gamma)){
 
       S = computeFeatureSetSupport(
-        Mat=Mat, 
+        seMat=seMat, 
         FeatureSets=FeatureSets, 
         gamma=gamma[i], 
         beta=beta, 

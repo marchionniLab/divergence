@@ -163,12 +163,12 @@ Now we can covert the tumor data to ternary form using the baseline:
 
 ```{r, echo=TRUE}
 
-mat.div.1 = computeUnivariateTernaryMatrix(
-  Mat = mat.data.q,
+assays(seMat)$div = computeUnivariateTernaryMatrix(
+  seMat = seMat,
   Baseline = baseline2
 )
 
-mat.div.1[1:5, 1:4]
+assays(seMat)$div[1:5, 1:4]
 
 ```
 
@@ -177,8 +177,8 @@ The simpler approach is to use the computeUnivariateDigitization() function, whi
 ```{r, echo=TRUE}
 
 div.2 = computeUnivariateDigitization(
-  Mat = mat.data,
-  baseMat = mat.base,
+  seMat = seMat,
+  seMat.base = seMat.base,
   computeQuantiles = TRUE,
   gamma = 1:9/10,
   beta = 0.9,
@@ -211,15 +211,15 @@ If a phenotype of interest is available for the data, that can be supplied as an
 ```{r, echo=TRUE}
 
 # make a factor of the ER status phenotype
-selection = which(colnames(breastTCGA_Mat) %in% colnames(mat.data))
+selection = which(colnames(breastTCGA_Mat) %in% colnames(seMat))
 groups.ER = breastTCGA_ER[selection]
 
 table(groups.ER, useNA='i')
 
 # perform divergence
 div.3 = computeUnivariateDigitization(
-  Mat = mat.data.q,
-  baseMat = mat.base.q,
+  seMat = seMat,
+  seMat.base = seMat.base,
   computeQuantiles = FALSE,
   gamma = 1:9/10,
   Groups = groups.ER, 
@@ -239,7 +239,7 @@ The package includes a computeChiSquaredTest() function which will apply the chi
 ```{r, echo=TRUE, warning=FALSE}
 
 chi.1 = computeChiSquaredTest(
-  Mat = div.3$Mat.div,
+  Mat = assays(seMat)$div,
   Groups = groups.ER,
   classes = c("Positive", "Negative")
 )
@@ -268,7 +268,7 @@ Starting with the quantile transformed data, we can use the computeMultivariateS
 ```{r, echo=TRUE}
 
 baseline3 = computeMultivariateSupport(
-  Mat=mat.base.q, 
+  seMat=seMat.base, 
   FeatureSets = msigdb_Hallmarks,
   gamma=0.1, 
   beta=0.99
@@ -281,7 +281,7 @@ Or, we use the findMultivariateGammaWithSupport() to search through a given list
 ```{r, echo=TRUE}
 
 baseline4 = findMultivariateGammaWithSupport(
-  Mat=mat.base.q, 
+  seMat = seMat.base,
   FeatureSets = msigdb_Hallmarks,
   gamma=1:9/10, 
   beta=0.9,
@@ -307,7 +307,7 @@ Once the baseline has been computed, the binary digitized form can now be comput
 ```{r, echo=TRUE}
 
 mat.div.2 = computeMultivariateBinaryMatrix(
-  Mat = mat.data.q,
+  seMat = seMat,
   Baseline = baseline4
 )
 
@@ -323,8 +323,8 @@ As the the univariate case, all the steps can be performed together simply by us
 
 # perform divergence
 div.4 = computeMultivariateDigitization(
-  Mat = mat.data,
-  baseMat = mat.base,
+  seMat = seMat,
+  seMat.base = seMat.base,
   FeatureSets = msigdb_Hallmarks,
   computeQuantiles = TRUE,
   gamma = 1:9/10,

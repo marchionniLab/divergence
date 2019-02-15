@@ -29,7 +29,7 @@ quantileTransform = function(x){
 ###     rank_samples: TRUE if ranking should be applied before converting to percentiles
 getQuantileMat = function(seMat){
   
-  Mat = get_mat_from_SE(seMat)
+  Mat = get_mat_from_SE(seMat, labels=c("data"))
 
   newMat = apply(Mat, 2, function(x) quantileTransform(x))
   
@@ -46,7 +46,7 @@ getQuantileMat = function(seMat){
 
 getAlpha = function(seMat, Baseline){
   
-  mean(colSums(abs(computeTernary(seMat=seMat, Baseline=Baseline)))/nrow(Mat))
+  mean(colSums(abs(computeTernary(seMat=seMat, Baseline=Baseline)))/nrow(seMat))
   
 }
 
