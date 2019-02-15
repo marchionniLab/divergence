@@ -4,11 +4,11 @@
 \alias{findUnivariateGammaWithSupport}
 \title{Search for optimal gamma and associated support}
 \usage{
-findUnivariateGammaWithSupport(Mat, gamma = c(1:9/100, 1:9/10),
+findUnivariateGammaWithSupport(seMat, gamma = c(1:9/100, 1:9/10),
   beta = 0.95, alpha = 0.01, parallel = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{Mat}{Matrix of data in [0, 1], with each column corresponding to a sample and each 
+\item{seMat}{SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature; usually in quantile form.}
 
 \item{gamma}{Range of gamma values to search through. 
@@ -40,8 +40,9 @@ provides expected proportion of divergent features per sample less than or equal
 }
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-baseMat.q = computeQuantileMatrix(baseMat)
-baseline = findUnivariateGammaWithSupport(Mat=baseMat.q)
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+baseline = findUnivariateGammaWithSupport(seMat=seMat.base)
 
 }
 \keyword{gamma}

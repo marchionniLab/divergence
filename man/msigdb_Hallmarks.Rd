@@ -4,7 +4,7 @@
 \name{msigdb_Hallmarks}
 \alias{msigdb_Hallmarks}
 \title{Cancer Hallmark gene sets from the MSigDB collection}
-\format{A list of length 17, with the hallmark gene set name, each a character vector of gene symbols.}
+\format{A list of length 10, with the hallmark gene set name, each a character vector of gene symbols.}
 \source{
 \url{https://http://software.broadinstitute.org/gsea/msigdb/}
 }

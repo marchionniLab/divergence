@@ -4,11 +4,11 @@
 \alias{computeUnivariateSupport}
 \title{Estimate the baseline support}
 \usage{
-computeUnivariateSupport(Mat, gamma = 0.1, beta = 0.95,
+computeUnivariateSupport(seMat, gamma = 0.1, beta = 0.95,
   parallel = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{Mat}{Matrix of data in [0, 1], with each column corresponding to a sample and each 
+\item{seMat}{SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature; usually in quantile form.}
 
 \item{gamma}{Parameter for selecting radius around each support point (0 < gamma < 1).
@@ -34,8 +34,9 @@ and beta parameters.
 }
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-baseMat.q = computeQuantileMatrix(baseMat)
-baseline = computeUnivariateSupport(Mat=baseMat.q)
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+baseline = computeUnivariateSupport(seMat=seMat.base)
 
 }
 \keyword{baseline,}

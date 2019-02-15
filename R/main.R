@@ -3,7 +3,7 @@
 #' Function for computing the quantile transformation for one or more samples
 #' supplied as columns of a matrix.
 #'
-#' @param A data matrix in SummarizedExperiment form, with each column corresponding to a sample and each row 
+#' @param seMat A data matrix in SummarizedExperiment form, with each column corresponding to a sample and each row 
 #' corresponding to a feature.
 #'
 #' @return A matrix of the same dimensions with the quantile data.

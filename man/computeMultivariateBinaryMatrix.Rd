@@ -4,10 +4,10 @@
 \alias{computeMultivariateBinaryMatrix}
 \title{Compute the binary matrix with digitized divergence coding}
 \usage{
-computeMultivariateBinaryMatrix(Mat, Baseline)
+computeMultivariateBinaryMatrix(seMat, Baseline)
 }
 \arguments{
-\item{Mat}{Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+\item{seMat}{SummarizedExperiment with assay to be digitized, in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature; usually in quantile form.}
 
 \item{Baseline}{A Baseline object; this corresponds to the output of findMultivariateGammaWithSupport() or 
@@ -21,11 +21,13 @@ Function for obtaining the binary form for a matrix for multivariate divergence 
 }
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-baseMat.q = computeQuantileMatrix(baseMat)
-baseline = computeMultivariateSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+baseline = computeMultivariateSupport(seMat=seMat.base, FeatureSets=msigdb_Hallmarks)
 dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
-dataMat.q = computeQuantileMatrix(dataMat)
-divMat = computeMultivariateBinaryMatrix(Mat=dataMat.q, Baseline=baseline)
+seMat = SummarizedExperiment(assays=list(data=dataMat))
+assays(seMat)$quantile = computeQuantileMatrix(seMat)
+Mat.div = computeMultivariateBinaryMatrix(seMat=seMat, Baseline=baseline)
 
 }
 \keyword{binary}

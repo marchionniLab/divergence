@@ -4,12 +4,12 @@
 \alias{findMultivariateGammaWithSupport}
 \title{Find optimal gamma and corresponding support for list of feature sets}
 \usage{
-findMultivariateGammaWithSupport(Mat, FeatureSets, gamma = 1:9/10,
+findMultivariateGammaWithSupport(seMat, FeatureSets, gamma = 1:9/10,
   beta = 0.95, alpha = 0.01, distance = "euclidean",
   verbose = TRUE)
 }
 \arguments{
-\item{Mat}{Matrix of data in [0, 1], with each column corresponding to a sample and each 
+\item{seMat}{SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature; usually in quantile form.}
 
 \item{FeatureSets}{The multivariate features in list or matrix form. In list form, each list element
@@ -48,8 +48,9 @@ provides expected proportion of divergent features per sample less than or equal
 }
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-baseMat.q = computeQuantileMatrix(baseMat)
-baseline = findMultivariateGammaWithSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+baseline = findMultivariateGammaWithSupport(seMat=seMat.base, FeatureSets=msigdb_Hallmarks)
 
 }
 \keyword{gamma}

@@ -4,11 +4,11 @@
 \alias{computeMultivariateSupport}
 \title{Estimate the baseline support}
 \usage{
-computeMultivariateSupport(Mat, FeatureSets, gamma = 0.1, beta = 0.95,
-  distance = "euclidean", verbose = TRUE)
+computeMultivariateSupport(seMat, FeatureSets, gamma = 0.1,
+  beta = 0.95, distance = "euclidean", verbose = TRUE)
 }
 \arguments{
-\item{Mat}{Matrix of data in [0, 1], with each column corresponding to a sample and each 
+\item{seMat}{SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature; usually in quantile form.}
 
 \item{FeatureSets}{The multivariate features in list or matrix form. In list form, each list element
@@ -41,8 +41,9 @@ and beta parameters.
 }
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-baseMat.q = computeQuantileMatrix(baseMat)
-baseline = computeMultivariateSupport(Mat=baseMat.q, FeatureSets=msigdb_Hallmarks)
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+baseline = computeMultivariateSupport(seMat=seMat.base, FeatureSets=msigdb_Hallmarks)
 
 }
 \keyword{baseline,}

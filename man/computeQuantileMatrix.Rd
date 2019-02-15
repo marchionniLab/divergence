@@ -4,13 +4,14 @@
 \alias{computeQuantileMatrix}
 \title{Compute quantile transformations}
 \usage{
-computeQuantileMatrix(Mat)
+computeQuantileMatrix(seMat)
 }
 \arguments{
-\item{Mat}{Matrix of data, with each column corresponding to a sample and each row corresponding to a feature.}
+\item{seMat}{A data matrix in SummarizedExperiment form, with each column corresponding to a sample and each row 
+corresponding to a feature.}
 }
 \value{
-A matrix of the same dimensions as Mat with the quantile data.
+A matrix of the same dimensions with the quantile data.
 }
 \description{
 Function for computing the quantile transformation for one or more samples
@@ -18,6 +19,7 @@ supplied as columns of a matrix.
 }
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-baseMat.q = computeQuantileMatrix(baseMat)
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
 
 }

@@ -4,28 +4,30 @@
 \alias{computeUnivariateTernaryMatrix}
 \title{Compute the ternary matrix with digitized divergence coding}
 \usage{
-computeUnivariateTernaryMatrix(Mat, Baseline)
+computeUnivariateTernaryMatrix(seMat, Baseline)
 }
 \arguments{
-\item{Mat}{Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+\item{seMat}{SummariziedExperiment with an assay in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature; usually in quantile form.}
 
 \item{Baseline}{A list with a data frame element "Ranges" containing the baseline range of each features; 
 this corresponds to the output of findUnivariateGammaWithSupport() or computeUnivariateSupport()}
 }
 \value{
-A matrix with the same dimensions as Mat containing the ternary form data.
+A matrix containing the ternary form data.
 }
 \description{
 Function for obtaining the ternary form for a matrix of data given a baseline range
 }
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
-baseMat.q = computeQuantileMatrix(baseMat)
-baseline = computeUnivariateSupport(Mat=baseMat.q)
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
+baseline = computeUnivariateSupport(seMat=seMat.base)
 dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
-dataMat.q = computeQuantileMatrix(dataMat)
-divMat = computeUnivariateTernaryMatrix(Mat=dataMat.q, Baseline=baseline)
+seMat = SummarizedExperiment(assays=list(data=dataMat))
+assays(seMat)$quantile = computeQuantileMatrix(seMat)
+assays(seMat)$div = computeUnivariateTernaryMatrix(seMat=seMat, Baseline=baseline)
 
 }
 \keyword{digitization}

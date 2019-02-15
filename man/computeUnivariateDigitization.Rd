@@ -4,19 +4,19 @@
 \alias{computeUnivariateDigitization}
 \title{Perform ternary digitization}
 \usage{
-computeUnivariateDigitization(Mat, baseMat, computeQuantiles = TRUE,
+computeUnivariateDigitization(seMat, seMat.base, computeQuantiles = TRUE,
   gamma = c(1:9/100, 1:9/10), beta = 0.95, alpha = 0.01,
   parallel = TRUE, verbose = TRUE, findGamma = TRUE, Groups = NULL,
   classes = NULL)
 }
 \arguments{
-\item{Mat}{Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+\item{seMat}{SummarizedExperiment with assay to be digitized, in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature; usually in quantile form.}
 
-\item{baseMat}{Matrix of baseline data in [0, 1], (usually in quantiles), with each column corresponding to a sample and each 
+\item{seMat.base}{SummarizedExperiment with baseline assay in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature}
 
-\item{computeQuantiles}{Apply quantile transformation to both data and baseline matrices (TRUE or FALSE; defaults to TRUE).}
+\item{computeQuantiles}{Logical; apply quantile transformation to both data and baseline matrices (TRUE or FALSE; defaults to TRUE).}
 
 \item{gamma}{Range of gamma values to search through. 
 By default gamma = {0.01, 0.02, ... 0.09, 0.1, 0.2, ..., 0.9}.}
@@ -41,8 +41,8 @@ TRUE). If FALSE, the first value given in gamma will be used.}
 }
 \value{
 A list with elements:
-			Mat.div: divergence coding of data matrix in ternary (-1, 0, 1) form, of same dimensions at Mat
-		baseMat.div: divergence coding of base matrix in ternary (-1, 0, 1) form, of same dimensions at Mat
+			Mat.div: divergence coding of data matrix in ternary (-1, 0, 1) form, of same dimensions at seMat
+		baseMat.div: divergence coding of base matrix in ternary (-1, 0, 1) form, of same dimensions at seMat.base
 			div: data frame with the number of divergent features in each sample, including upper and lower divergence
 		features.div: data frame with the divergent probability of each feature; divergence probability for each 
 				phenotype in included as well if 'Groups' and 'classes' inputs were provided.
@@ -59,11 +59,14 @@ given a data matrix and a baseline matrix
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+seMat = SummarizedExperiment(assays=list(data=dataMat))
 div = computeUnivariateDigitization(
-  Mat = dataMat,
-  baseMat = baseMat,
+  seMat = seMat,
+  seMat.base = seMat.base,
  parallel = TRUE
 )
+assays(seMat)$div = div$Mat.div
 
 }
 \keyword{digitize}

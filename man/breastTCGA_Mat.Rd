@@ -3,8 +3,8 @@
 \docType{data}
 \name{breastTCGA_Mat}
 \alias{breastTCGA_Mat}
-\title{Gene expression for 1000 genes in 887 breast samples}
-\format{A data matrix with 1000 rows and 887 columns.}
+\title{Gene expression for 260 genes in 887 breast samples}
+\format{A data matrix with 260 rows and 887 columns.}
 \source{
 \url{https://cancergenome.nih.gov/}
 }

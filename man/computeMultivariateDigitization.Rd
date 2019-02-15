@@ -4,16 +4,16 @@
 \alias{computeMultivariateDigitization}
 \title{Perform binary digitization}
 \usage{
-computeMultivariateDigitization(Mat, baseMat, FeatureSets,
+computeMultivariateDigitization(seMat, seMat.base, FeatureSets,
   computeQuantiles = TRUE, gamma = c(1:9/100, 1:9/10), beta = 0.95,
   alpha = 0.01, distance = "euclidean", verbose = TRUE,
   findGamma = TRUE, Groups = NULL, classes = NULL)
 }
 \arguments{
-\item{Mat}{Matrix of data to be digitized, in [0, 1], with each column corresponding to a sample and each 
+\item{seMat}{SummarizedExperiment with assay to be digitized, in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature; usually in quantile form.}
 
-\item{baseMat}{Matrix of baseline data in [0, 1], (usually in quantiles), with each column corresponding to a sample and each 
+\item{seMat.base}{SummarizedExperiment with baseline assay in [0, 1], with each column corresponding to a sample and each 
 row corresponding to a feature}
 
 \item{FeatureSets}{The multivariate features in list or matrix form. In list form, each list element
@@ -45,8 +45,8 @@ TRUE). If FALSE, the first value given in gamma will be used.}
 }
 \value{
 A list with elements:
-			Mat.div: divergence coding of data matrix in ternary (-1, 0, 1) form, of same dimensions at Mat
-		baseMat.div: divergence coding of base matrix in binary form, of same column names at Mat, rows being multivariate
+			Mat.div: divergence coding of data matrix in binary form, of same dimensions at seMat
+		baseMat.div: divergence coding of base matrix in binary form, of same column names at seMat.base, rows being multivariate
 				features.
 			div: data frame with the number of divergent features in each sample
 		features.div: data frame with the divergent probability of each feature; divergence probability for each 
@@ -64,9 +64,11 @@ given a data matrix and a baseline matrix with multivariate features of interest
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+seMat = SummarizedExperiment(assays=list(data=dataMat))
 div = computeMultivariateDigitization(
-  Mat = dataMat,
-  baseMat = baseMat,
+  seMat = seMat,
+  seMat.base = seMat.base,
   FeatureSets = msigdb_Hallmarks
 )
 

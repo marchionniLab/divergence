@@ -1,0 +1,2 @@
+#' @import SummarizedExperiment
+library(SummarizedExperiment)

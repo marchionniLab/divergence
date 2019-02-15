@@ -24,13 +24,16 @@ for each feature between given groups
 \examples{
 baseMat = breastTCGA_Mat[, breastTCGA_Group == "NORMAL"]
 dataMat = breastTCGA_Mat[, breastTCGA_Group != "NORMAL"]
+seMat.base = SummarizedExperiment(assays=list(data=baseMat))
+seMat = SummarizedExperiment(assays=list(data=dataMat))
 div = computeUnivariateDigitization(
-  Mat = dataMat,
-  baseMat = baseMat,
-	 parallel = TRUE
+  seMat = seMat,
+  seMat.base = seMat.base,
+ parallel = TRUE
 )
-sel = which(colnames(breastTCGA_Mat) \%in\% colnames(dataMat))
-div.chi = computeChiSquaredTest(Mat=div$Mat.div, 
+assays(seMat)$div = div$Mat.div
+sel = which(colnames(seMat) \%in\% colnames(dataMat))
+div.chi = computeChiSquaredTest(Mat=assays(seMat)$div, 
                                 Groups=breastTCGA_ER[sel],
                                 classes=c("Positive", "Negative"))
 
