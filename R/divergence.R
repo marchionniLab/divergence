@@ -44,9 +44,9 @@ getQuantileMat = function(seMat){
 ### get expected proportion of divergent feature per sample
 ### ====================================================
 
-getAlpha = function(Mat, Baseline){
+getAlpha = function(seMat, Baseline){
   
-  mean(colSums(abs(computeTernary(Mat=Mat, Baseline=Baseline)))/nrow(Mat))
+  mean(colSums(abs(computeTernary(seMat=seMat, Baseline=Baseline)))/nrow(Mat))
   
 }
 
@@ -250,7 +250,7 @@ computeRanges = function(seMat, gamma=0.1, beta=0.95, parallel=TRUE, verbose=TRU
   
   Baseline.temp = list(Ranges=R, Support=S)
 
-  alpha=getAlpha(Mat=Mat, Baseline=Baseline.temp)
+  alpha=getAlpha(seMat=seMat, Baseline=Baseline.temp)
   if(verbose)
     message(sprintf("[Expected proportion of divergent features per sample=%g]\n", alpha))
   

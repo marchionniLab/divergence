@@ -44,6 +44,8 @@ We will use the normal samples from the brest TCGA data set as our baseline coho
 
 We can prepare the baseline and data matrices, though this is strictly not necessary (as any preparations can be done on-the-fly as they are submitted to the functions). You may perform any other pre-processing or normalizing steps you would like to the data if deemed necessary depending on the experiment.
 
+Note that we use the SummarizedExperiment container for matrix data, where the original data, quantile transformed data and divergence coding can be maintained together. 
+
 ```{r, echo=TRUE}
 
 # load divergence package
@@ -51,12 +53,17 @@ library(divergence)
 
 # baseline cohort
 mat.base = breastTCGA_Mat[, which(breastTCGA_Group == "NORMAL")]
+# make SummarizedExperiment
+seMat.base = SummarizedExperiment(assays=list(data=mat.base))
 
 # data conort
 mat.data = breastTCGA_Mat[, which(breastTCGA_Group == "TUMOR")]
+# make SummarizedExperiment
+seMat = SummarizedExperiment(assays=list(data=mat.data))
 
 ```
 
+When creating the SummarizedExperiment object, use assay labeles 'data' for the original data and 'quantile' for quantile data (if the quantile transformation is being performed manually). 
 
 \section{Univariate Divergence}
 
@@ -72,14 +79,14 @@ To demonstrate, we start by applying the quantile transformation to our prepared
 ```{r, echo=TRUE}
 
 # convert normal data to quantiles
-mat.base.q = computeQuantileMatrix(mat.base)
+assays(seMat.base)$quantile = computeQuantileMatrix(seMat.base)
 # view
-mat.base.q[1:5, 1:4]
+assays(seMat.base)$quantile[1:5, 1:4]
 
 # convert tumor data to quantiles
-mat.data.q = computeQuantileMatrix(mat.data)
+assays(seMat)$quantile = computeQuantileMatrix(seMat)
 # view
-mat.data.q[1:5, 1:4]
+assays(seMat)$quantile[1:5, 1:4]
 
 ```
 
@@ -88,7 +95,7 @@ Now we can compute the support using the quantile-form normal data. There are tw
 ```{r, echo=TRUE}
 
 baseline1 = computeUnivariateSupport(
-  Mat=mat.base.q, 
+  seMat=seMat.base, 
   gamma=0.1, 
   beta=0.99, 
   parallel=FALSE
@@ -117,7 +124,7 @@ The following will find a support such that the expected number of divergence fe
 ```{r, echo=TRUE}
 
 baseline2 = findUnivariateGammaWithSupport(
-  Mat=mat.base.q, 
+  seMat=seMat.base, 
   gamma=1:9/10, 
   beta=0.9, 
   alpha=0.005,
