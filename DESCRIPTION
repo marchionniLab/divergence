@@ -1,6 +1,6 @@
 Package: divergence
 Title: Divergence: Functionality for assessing omics data by divergence with respect to a baseline
-Version: 0.99.05
+Version: 0.99.06
 Author: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>, Qian Ke <qke1@jhu.edu>
 Maintainer: Wikum Dinalankara <wdinala1@jhmi.edu>, Luigi Marchionni <marchion@jhu.edu>
 Description: This package provides functionality for performing divergence analysis as presented in Dinalankara et al, "Digitizing omics profiles by divergence from a baseline", PANS 2018. This allows the user to simplify high dimensional omics data into a binary or ternary format which encapsulates how the data is divergent from a specified baseline group with the same univariate or multivariate features.
